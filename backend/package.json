@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "version": "0.0.1",
-  "description": "CoffeeTime Backend",
+  "description": "CoffeeTime Backend Services",
   "author": "thka, ahj, stsh",
   "license": "MIT",
   "scripts": {
