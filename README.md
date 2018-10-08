@@ -1,1 +1,1 @@
-# CoffeeTime - Kann ich jetzt Kaffee holen gehen?
+# CoffeeTime - Kann ich jetzt bitte Kaffee holen gehen?
