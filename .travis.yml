@@ -1,4 +1,8 @@
 language: nodejs
 node_js: 
   - lts/*
-before_script: cd backend/
+
+env:
+  - TEST_DIR=backend
+#  - TEST_DIR=frontend
+script: cd $TEST_DIR && npm test
