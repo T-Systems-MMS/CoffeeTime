@@ -1,6 +1,6 @@
 language: nodejs
 node_js: 
-  - "node"
+  - "8"
 env:
   - TEST_DIR=backend
 #  - TEST_DIR=frontend
