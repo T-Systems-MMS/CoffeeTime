@@ -1,7 +1,6 @@
 language: nodejs
 node_js: 
-  - lts/*
-
+  - "node"
 env:
   - TEST_DIR=backend
 #  - TEST_DIR=frontend
