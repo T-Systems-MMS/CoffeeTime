@@ -5,4 +5,4 @@ node_js:
 env:
   - TEST_DIR=backend
 #  - TEST_DIR=frontend
-script: cd $TEST_DIR && npm test
+script: cd $TEST_DIR && npm install && npm test
