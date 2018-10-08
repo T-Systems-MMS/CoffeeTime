@@ -1,7 +1,4 @@
-matrix:
-  include:
-    - language: nodejs
-      node_js:
-        - "lts/*"
-      before_script:
-        - cd backend/
+language: nodejs
+node_js: 
+  - lts/*
+before_script: cd backend/
