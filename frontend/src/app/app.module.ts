@@ -14,7 +14,10 @@ import { environment } from '../environments/environment';
     AppComponent
   ],
   imports: [
-    BrowserModule,
+    // Add .withServerTransition() to support Universal rendering.
+    // The application ID can be any identifier which is unique on
+    // the page.
+    BrowserModule.withServerTransition({ appId: 'CoffeeTime' }),
     HttpClientModule,
     BrowserAnimationsModule,
     MatCardModule,
