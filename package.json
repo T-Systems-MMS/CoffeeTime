@@ -4,6 +4,7 @@
   "description": "CoffeTime Inno Project",
   "scripts": {
     "install": "npm run install-fe && npm run install-be",
+    "postinstall": "cd fronten && npm run build",
     "test": "npm run test-fe && npm run test-be",
     "test-fe": "cd frontend && npm test",
     "test-be": "cd backend && npm test",
