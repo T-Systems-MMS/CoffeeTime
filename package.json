@@ -1,0 +1,24 @@
+{
+  "name": "coffeetime",
+  "version": "1.0.0",
+  "description": "CoffeTime Inno Project",
+  "scripts": {
+    "install": "npm run install-fe && npm run install-be",
+    "test": "npm run test-fe && npm run test-be",
+    "test-fe": "cd frontend && npm test",
+    "test-be": "cd backend && npm test",
+    "install-fe": "cd frontend && npm install",
+    "install-be": "cd backend && npm install",
+    "start": "cd backend && npm start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/T-Systems-MMS/CoffeeTime.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/T-Systems-MMS/CoffeeTime/issues"
+  },
+  "homepage": "https://github.com/T-Systems-MMS/CoffeeTime#readme"
+}
