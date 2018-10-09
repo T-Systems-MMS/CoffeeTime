@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {DataService} from './data.service';
+import { DataService } from './data.service';
 
 @Component({
   selector: 'app-root',
@@ -9,9 +9,9 @@ import {DataService} from './data.service';
 
 export class AppComponent implements OnInit {
   title = 'frontend';
-  joke  = null;
+  joke = null;
 
-  constructor(private dataService: DataService) {}
+  constructor(private dataService: DataService) { }
 
   ngOnInit() {
     this.fetchData();
