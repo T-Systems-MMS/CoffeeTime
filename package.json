@@ -15,6 +15,9 @@
     "type": "git",
     "url": "git+https://github.com/T-Systems-MMS/CoffeeTime.git"
   },
+  "engines": {
+    "node": "8.10.0"
+  },
   "author": "",
   "license": "MIT",
   "bugs": {
