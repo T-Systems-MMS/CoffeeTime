@@ -1,0 +1,16 @@
+<!--The content below is only a placeholder and can be replaced.-->
+<div style="text-align:center">
+  <h1>
+    Welcome to {{ title }}!
+  </h1>
+</div>
+<mat-card *ngIf="joke" color="primary">
+  <mat-card-header>
+    <mat-card-title>Chuck Norris Joke</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    {{joke.value}}
+  </mat-card-content>
+</mat-card>
+
+
