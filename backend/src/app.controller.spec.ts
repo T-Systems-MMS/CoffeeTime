@@ -13,10 +13,10 @@ describe('AppController', () => {
     }).compile();
   });
 
-  describe('root', () => {
+  describe('api', () => {
     it('should return "Hello World!"', () => {
       const appController = app.get<AppController>(AppController);
-      expect(appController.root()).toBe('Hello World!');
+      expect(appController.api()).toBe('Hello World!');
     });
   });
 });
