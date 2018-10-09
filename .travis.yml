@@ -1,0 +1,7 @@
+language: node_js
+node_js: 
+  - 8
+env:
+  - TEST_DIR=backend
+#  - TEST_DIR=frontend
+script: cd $TEST_DIR && npm install && npm test
