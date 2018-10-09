@@ -1,5 +1,8 @@
 import { TestBed, async } from '@angular/core/testing';
 import { AppComponent } from './app.component';
+import { MatCardModule } from '@angular/material/card';
+import { DataService } from './data.service';
+import { HttpClientModule } from '@angular/common/http';
 
 describe('AppComponent', () => {
   beforeEach(async(() => {
@@ -7,6 +10,11 @@ describe('AppComponent', () => {
       declarations: [
         AppComponent
       ],
+      imports: [
+        MatCardModule,
+        HttpClientModule
+      ],
+      providers: [DataService],
     }).compileComponents();
   }));
 

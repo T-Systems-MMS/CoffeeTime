@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {DataService} from './data.service';
 
 @Component({
@@ -6,7 +6,8 @@ import {DataService} from './data.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent {
+
+export class AppComponent implements OnInit {
   title = 'frontend';
   joke  = null;
 
@@ -18,8 +19,8 @@ export class AppComponent {
 
   private fetchData() {
     this.dataService.fetchData().subscribe(
-      response => { this.joke = response },
-      error => { console.log(error) }
+      response => { this.joke = response; },
+      error => { console.log(error); }
     );
   }
 }

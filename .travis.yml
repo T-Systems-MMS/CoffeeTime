@@ -1,7 +1,14 @@
+addons: 
+  chrome: stable
+cache:
+  directories:
+    - backend/node_modules
+    - frontend/node_modules
+
 language: node_js
 node_js: 
   - 8
 env:
   - TEST_DIR=backend
-#  - TEST_DIR=frontend
+  - TEST_DIR=frontend
 script: cd $TEST_DIR && npm install && npm test
