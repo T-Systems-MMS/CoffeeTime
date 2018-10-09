@@ -11,6 +11,9 @@ async function bootstrap() {
       prefix: '/',
    },
   );
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
   const port = process.env.PORT || 3000;
   Logger.log(`Listening on port ${port}`);
   await app.listen(port);
