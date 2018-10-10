@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { ApiController } from './api.controller';
+import { RoomService } from './room.service';
 import { Room } from './domain/room';
 
 describe('AppController', () => {
@@ -8,15 +8,15 @@ describe('AppController', () => {
 
   beforeAll(async () => {
     app = await Test.createTestingModule({
-      controllers: [AppController],
-      providers: [AppService],
+      controllers: [ApiController],
+      providers: [RoomService],
     }).compile();
   });
 
   describe('api', () => {
     it('should return "two Empty Rooms"', () => {
-      const appController = app.get<AppController>(AppController);
-      expect(appController.api([])).toEqual([new Room('123'), new Room('456')]);
+      const apiController = app.get<ApiController>(ApiController);
+      expect(apiController.rooms([])).toEqual([new Room('123'), new Room('456')]);
     });
   });
 });
