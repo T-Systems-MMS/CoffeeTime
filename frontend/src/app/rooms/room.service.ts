@@ -12,7 +12,6 @@ export class RoomService {
   fetchData() { return this.httpClient.get(this.url); }
 
   getRoom(id: string) {
-    console.log('id is:', id);
     return this.httpClient.get(this.url);
   }
 }

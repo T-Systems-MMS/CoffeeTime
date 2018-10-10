@@ -4,8 +4,8 @@ import { RoomListComponent } from './room-list/room-list.component';
 import { RoomDetailComponent } from './room-detail/room-detail.component';
 
 const roomRoutes: Routes = [
-  { path: 'rooms', component: RoomListComponent },
-  { path: 'room/:id', component: RoomDetailComponent },
+  { path: 'rooms', component: RoomListComponent, data: { animation: 'rooms' }  },
+  { path: 'room/:id', component: RoomDetailComponent, data: { animation: 'room' }  },
 ];
 
 @NgModule({
