@@ -3,6 +3,7 @@ import { AppComponent } from './app.component';
 import { MatCardModule } from '@angular/material/card';
 import { DataService } from './data.service';
 import { HttpClientModule } from '@angular/common/http';
+import { RouterTestingModule } from '@angular/router/testing';
 
 describe('AppComponent', () => {
   beforeEach(async(() => {
@@ -12,7 +13,8 @@ describe('AppComponent', () => {
       ],
       imports: [
         MatCardModule,
-        HttpClientModule
+        HttpClientModule,
+        RouterTestingModule
       ],
       providers: [DataService],
     }).compileComponents();
