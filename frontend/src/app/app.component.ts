@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { DataService } from './data.service';
 
 @Component({
   selector: 'app-root',
@@ -8,19 +7,8 @@ import { DataService } from './data.service';
 })
 
 export class AppComponent implements OnInit {
-  title = 'frontend';
-  joke = null;
-
-  constructor(private dataService: DataService) { }
-
-  ngOnInit() {
-    this.fetchData();
+  ngOnInit(): void {
+    throw new Error('Method not implemented.');
   }
 
-  private fetchData() {
-    this.dataService.fetchData().subscribe(
-      response => { this.joke = response; },
-      error => { console.log(error); }
-    );
-  }
 }

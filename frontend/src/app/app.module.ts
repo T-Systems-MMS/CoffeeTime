@@ -14,11 +14,15 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { AppRoutingModule } from './app-routing.module';
-import { RoomComponent } from './room.component';
+import { RoomComponent } from './room/room.component';
+import { RoomListComponent } from './room-list/room-list.component';
+import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 @NgModule({
   declarations: [
     AppComponent,
-    RoomComponent
+    RoomComponent,
+    RoomListComponent,
+    PageNotFoundComponent,
   ],
   imports: [
     BrowserModule,
