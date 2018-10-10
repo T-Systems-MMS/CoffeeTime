@@ -6,8 +6,8 @@ import { Room } from './domain/room';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get('/api')
+  @Get('/api/rooms')
   api(@Headers() headers): Array<Room> {
-    return this.appService.root();
+    return this.appService.rooms();
   }
 }
