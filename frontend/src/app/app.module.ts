@@ -6,6 +6,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 import { AppComponent } from './app.component';
 import { DataService } from './data.service';
@@ -13,22 +14,25 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { AppRoutingModule } from './app-routing.module';
-
+import { RoomComponent } from './room.component';
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    RoomComponent
   ],
   imports: [
     BrowserModule,
     HttpClientModule,
     BrowserAnimationsModule,
-    MatCardModule,
     MatToolbarModule,
+    MatCardModule,
     MatIconModule,
     MatButtonModule,
     MatSlideToggleModule,
+    MatExpansionModule,
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
     AppRoutingModule
+
   ],
   providers: [DataService],
   bootstrap: [AppComponent]

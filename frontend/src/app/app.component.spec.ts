@@ -1,30 +1,37 @@
 import { TestBed, async } from '@angular/core/testing';
 import { AppComponent } from './app.component';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatButtonModule } from '@angular/material/button';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 import { DataService } from './data.service';
 import { HttpClientModule } from '@angular/common/http';
+
 import { RouterTestingModule } from '@angular/router/testing';
+import { RoomComponent } from './room.component';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatIconModule } from '@angular/material/icon';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatCardModule } from '@angular/material/card';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatButtonModule } from '@angular/material/button';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('AppComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [
-        AppComponent
+        AppComponent,
+        RoomComponent
       ],
       imports: [
-        MatCardModule,
         HttpClientModule,
         MatToolbarModule,
         MatIconModule,
-        MatButtonModule,
+        MatExpansionModule,
+        MatCardModule,
         MatSlideToggleModule,
+        MatButtonModule,
         HttpClientModule,
-        RouterTestingModule
+        RouterTestingModule,
+        BrowserAnimationsModule
       ],
       providers: [DataService],
     }).compileComponents();
