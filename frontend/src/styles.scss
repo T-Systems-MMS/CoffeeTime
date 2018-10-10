@@ -42,3 +42,5 @@ $tsystems-app-warn:    mat-palette($mat-red);
 $tsystems-app-theme: mat-light-theme($tsystems-app-primary, $tsystems-app-accent, $tsystems-app-warn);
 @include angular-material-theme($tsystems-app-theme);
 
+html, body { height: 100%; }
+body { margin: 0; font-family: 'Roboto', sans-serif; }
