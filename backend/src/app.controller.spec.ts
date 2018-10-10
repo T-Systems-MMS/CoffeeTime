@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { Room } from './domain/room';
 
 describe('AppController', () => {
   let app: TestingModule;
@@ -14,9 +14,9 @@ describe('AppController', () => {
   });
 
   describe('api', () => {
-    it('should return "Hello World!"', () => {
+    it('should return "two Empty Rooms"', () => {
       const appController = app.get<AppController>(AppController);
-      expect(appController.api()).toBe('Hello World!');
+      expect(appController.api([])).toEqual([new Room('123'), new Room('456')]);
     });
   });
 });

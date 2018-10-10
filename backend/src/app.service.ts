@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import { Room } from './domain/room';
 
 @Injectable()
 export class AppService {
-  root(): string {
-    return 'Hello World!';
+  root(): Array<Room> {
+    return [new Room('123'), new Room('456')];
   }
 }
