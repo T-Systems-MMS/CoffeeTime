@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
-import { DataService } from '../data.service';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { RoomService } from '../room.service';
+
 
 @Component({
   selector: 'app-room-list',
@@ -10,17 +11,19 @@ export class RoomListComponent implements OnInit {
 
   joke = null;
 
-  constructor(private dataService: DataService) { }
+  constructor(private roomService: RoomService) { }
 
   ngOnInit() {
     this.fetchData();
   }
 
   private fetchData() {
-    this.dataService.fetchData().subscribe(
+    this.roomService.fetchData().subscribe(
       response => { this.joke = response; },
       error => { console.log(error); }
     );
   }
+
+
 
 }

@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
-import { DataService } from './data.service';
+import { RoomService } from './room.service';
 import { HttpClientModule } from '@angular/common/http';
 
 describe('DataService', () => {
@@ -9,12 +9,12 @@ describe('DataService', () => {
       HttpClientModule
     ],
     providers: [
-      DataService
+      RoomService
     ]
   }));
 
   it('should be created', () => {
-    const service: DataService = TestBed.get(DataService);
+    const service: RoomService = TestBed.get(RoomService);
     expect(service).toBeTruthy();
   });
 });

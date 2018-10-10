@@ -8,9 +8,9 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatCardModule } from '@angular/material/card';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatButtonModule } from '@angular/material/button';
-import { DataService } from '../data.service';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { RoomService } from '../room.service';
 
 describe('RoomListComponent', () => {
   let component: RoomListComponent;
@@ -33,7 +33,7 @@ describe('RoomListComponent', () => {
         BrowserAnimationsModule
       ],
       providers: [
-        DataService
+        RoomService
       ],
     })
       .compileComponents();
