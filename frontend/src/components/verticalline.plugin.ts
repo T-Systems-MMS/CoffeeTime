@@ -1,55 +1,58 @@
 import { Line, IChartOptions, IChartistBase, IChartistSvg, IChartistLineChart } from "chartist";
+import { defaults } from 'lodash';
 
+/**
+ * Options for vertical line plugin.
+ */
 export interface VerticalLinePluginOptions {
-    position: Date | number | string;
-    className: string;
-    label: string;
+    position: Date | number;
+    className?: string;
+    label?: string;
+    lineOffset?: number;
+    labelOffset?: number;
+    labelPadding?: number;
 }
 
 interface ExtendedIChartistBase extends IChartistLineChart {
     svg: IChartistSvg;
 }
-
+/**
+ * Plugin to show a vertical line in chartist chart
+ */
 export function verticalLinePlugin(options: VerticalLinePluginOptions): Function {
+    options = defaults(options, {
+        className: 'ct-vertical-line',
+        lineOffset: 15,
+        labelPadding: 5,
+        labelOffset: 10
+    }) as VerticalLinePluginOptions;
+
     return function (chart: IChartistBase<IChartOptions>) {
         if (!(chart instanceof Line)) {
             return;
         }
 
-        let index: number;
+        // extract position and define vars
+        let position: number = options.position instanceof Date ? options.position.getTime() : options.position;
         let xCoord: number;
 
-        chart.on('data', function () {
-            index = (chart.data.labels as Array<any>).indexOf(options.position);
-        });
-
-        chart.on('draw', function (data) {
-            if (index !== -1 && data.type === 'point' && data.index === index) {
-                xCoord = data.x;
-            }
-        });
 
         chart.on('created', function (data) {
-
-            if (index === -1) {
-                return;
-            }
-
+            // define classes 
             const labelClassName = options.className + '-label';
+            xCoord = data.axisX.projectValue(position) + data.chartRect.x1;
 
-            const helperElem = document.createElement('div');
-            helperElem.innerHTML = `<span class="${labelClassName}" style="position: absolute; display: none;">${options.label}</span>`;
-            const label = (helperElem.firstChild as HTMLElement);
-            label.style.left = (xCoord - (label.offsetWidth / 2)) + 'px';
-
+            // add line
             (chart as ExtendedIChartistBase).svg.elem('line', {
                 x1: xCoord,
                 x2: xCoord,
-                y1: data.chartRect.y1,
-                y2: data.chartRect.y2 + label.offsetHeight
+                y1: data.chartRect.y1 + options.lineOffset,
+                y2: data.chartRect.y2 - options.lineOffset,
+                style: 'stroke-width: 2px;'
             }, options.className);
-            
-            label.style.display = 'inline';
+            // add label
+            const attr = { x: xCoord + options.labelPadding, y: options.labelOffset };
+            (chart as ExtendedIChartistBase).svg.elem('text', attr, labelClassName).text(options.label);
         });
     }
 }
