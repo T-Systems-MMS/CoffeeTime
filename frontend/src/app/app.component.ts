@@ -1,26 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import { DataService } from './data.service';
+import { RouterOutlet } from '@angular/router';
+import { slideInAnimation } from './animations';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrls: ['./app.component.scss'],
+  animations: [slideInAnimation]
 })
 
-export class AppComponent implements OnInit {
-  title = 'frontend';
-  joke = null;
-
-  constructor(private dataService: DataService) { }
-
-  ngOnInit() {
-    this.fetchData();
-  }
-
-  private fetchData() {
-    this.dataService.fetchData().subscribe(
-      response => { this.joke = response; },
-      error => { console.log(error); }
-    );
+export class AppComponent {
+  getAnimationData(outlet: RouterOutlet) {
+    return outlet && outlet.activatedRouteData && outlet.activatedRouteData['animation'];
   }
 }

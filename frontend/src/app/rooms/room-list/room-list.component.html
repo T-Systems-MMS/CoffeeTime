@@ -1,0 +1,20 @@
+<mat-toolbar color="primary">
+  <mat-icon>local_cafe</mat-icon>
+  <span>CoffeeTime</span>
+</mat-toolbar>
+
+<mat-expansion-panel expanded=true>
+  <app-room [room]=joke></app-room>
+</mat-expansion-panel>
+
+<mat-expansion-panel>
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+      weitere Orte
+    </mat-panel-title>
+  </mat-expansion-panel-header>
+  <ng-template matExpansionPanelContent>
+    <!-- lazy loading -->
+    <app-room [room]=joke></app-room>
+  </ng-template>
+</mat-expansion-panel>

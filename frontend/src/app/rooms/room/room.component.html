@@ -1,0 +1,36 @@
+<mat-card *ngIf="room">
+  <mat-card-header>
+    <img mat-card-avatar class="example-header-image">
+
+    <mat-card-title>Küche</mat-card-title>
+    <mat-card-subtitle>Gefüllt</mat-card-subtitle>
+
+  </mat-card-header>
+
+  <mat-card-content>
+    {{room.value}}
+
+    <p>Push</p>
+    <section class="push">
+      <p>
+        <mat-slide-toggle class="example-margin" [color]="color" [checked]="checked" [disabled]="disabled">
+          wenn frei
+        </mat-slide-toggle>
+      </p>
+      <p>
+        <mat-slide-toggle class="example-margin" [color]="color" [checked]="checked" [disabled]="disabled">
+          Empfehlungen
+        </mat-slide-toggle>
+      </p>
+    </section>
+  </mat-card-content>
+
+  <mat-card-actions>
+    <button mat-icon-button color="primary">
+      <mat-icon aria-label="Example icon-button with a heart icon">favorite_border</mat-icon>
+    </button>
+    <button mat-icon-button color="primary" routerLink="/room/123">
+      <mat-icon aria-label="Example icon-button with a heart icon">more_horiz</mat-icon>
+    </button>
+  </mat-card-actions>
+</mat-card>
