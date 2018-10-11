@@ -10,7 +10,9 @@
   </mat-card-header>
 
   <mat-card-content>
-    eine Grafik
+    <app-chart [data]="data" type="Line" [options]="options" [responsiveOptions]="responsiveOptions"></app-chart>
+
+    {{room.value}}
 
     <p>Push</p>
     <section class="push">

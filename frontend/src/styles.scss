@@ -41,38 +41,38 @@ $tsystems-app-theme: mat-light-theme($tsystems-app-primary, $tsystems-app-accent
 @import "~chartist/dist/scss/chartist";
 
 .ct-now {
-  stroke: green;
-  stroke-dasharray: 4px;
+  stroke: map-get($tsystems-map, 900);
+  //stroke-dasharray: 6px;
 }
 
 .ct-line,
 .ct-point,
 .ct-bar {
   &.ct-threshold-0 {
-    stroke: green;
+    stroke: map-get($mat-light-green, 600);
   }
 
   &.ct-threshold-1 {
-    stroke: yellow;
+    stroke: map-get($mat-amber, 400);
   }
 
   &.ct-threshold-2 {
-    stroke: red;
+    stroke: map-get($tsystems-map, 900);
   }
 }
 
 
 .ct-area {
   &.ct-threshold-0 {
-    fill: green;
+    fill: map-get($mat-light-green, 600);
   }
 
   &.ct-threshold-1 {
-    fill: yellow;
+    fill: map-get($mat-amber, 400);
   }
 
   &.ct-threshold-2 {
-    fill: red;
+    fill: map-get($tsystems-map, 900);
   }
 }
 
