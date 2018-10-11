@@ -14,11 +14,15 @@ export class RoomDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private service: RoomService
-  ) { }
+  ) {
+    this.room = {};
+   }
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
-    this.room = this.service.getRoom(id);
+    this.service.getRoom(id).subscribe((response) => {
+      this.room = response;
+    });
   }
 
   gotoRooms() {

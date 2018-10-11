@@ -13,6 +13,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatGridListModule } from '@angular/material/grid-list';
+import { PushService } from './push.service';
 
 @NgModule({
   declarations: [
@@ -32,7 +33,7 @@ import { MatGridListModule } from '@angular/material/grid-list';
     MatGridListModule
   ],
   providers: [
-    RoomService
+    RoomService, PushService
   ]
 })
 export class RoomsModule { }
