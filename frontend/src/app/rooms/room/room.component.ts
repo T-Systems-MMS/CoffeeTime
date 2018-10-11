@@ -5,6 +5,7 @@ import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { viewParentEl } from '@angular/core/src/view/util';
 import { PushService } from '../push.service';
 import { RoomService } from '../room.service';
+import { Router } from '@angular/router';
 
 const STORGE_KEY = 'ct_favorites';
 @Component({
@@ -18,6 +19,7 @@ export class RoomComponent implements OnInit {
 
   constructor(
     private service: RoomService,
+    private router: Router,
     @Inject(LOCAL_STORAGE) private storage: StorageService
   ) { }
 
@@ -43,5 +45,9 @@ export class RoomComponent implements OnInit {
 
   public toogleRecommendationsPush(event: MatSlideToggleChange) {
     this.service.togglePush(this.room, 'recommendations', event.checked);
+  }
+
+  public gotoRoomDetails() {
+    this.router.navigateByUrl(`/room/${this.room.id}`);
   }
 }

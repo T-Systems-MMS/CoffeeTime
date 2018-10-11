@@ -11,6 +11,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RoomService } from '../room.service';
+import { ServiceWorkerModule } from '@angular/service-worker';
+import { StorageServiceModule } from 'ngx-webstorage-service';
 
 describe('RoomListComponent', () => {
   let component: RoomListComponent;
@@ -30,7 +32,9 @@ describe('RoomListComponent', () => {
         MatCardModule,
         MatSlideToggleModule,
         MatButtonModule,
-        BrowserAnimationsModule
+        BrowserAnimationsModule,
+        ServiceWorkerModule.register('', {enabled: false}),
+        StorageServiceModule
       ],
       providers: [
         RoomService

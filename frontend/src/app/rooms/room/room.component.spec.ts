@@ -6,6 +6,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCardModule } from '@angular/material/card';
+import { RouterTestingModule } from '@angular/router/testing';
+import { HttpClientModule } from '@angular/common/http';
+import { ServiceWorkerModule } from '@angular/service-worker';
+import { StorageServiceModule } from 'ngx-webstorage-service';
 
 describe('RoomComponent', () => {
   let component: RoomComponent;
@@ -21,6 +25,10 @@ describe('RoomComponent', () => {
         MatIconModule,
         MatButtonModule,
         MatSlideToggleModule,
+        HttpClientModule,
+        RouterTestingModule,
+        ServiceWorkerModule.register('', {enabled: false}),
+        StorageServiceModule
       ]
     })
       .compileComponents();

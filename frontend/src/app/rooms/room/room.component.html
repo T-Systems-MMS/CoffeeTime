@@ -32,7 +32,7 @@
       <mat-icon aria-label="Favorit" *ngIf="!room.favorite">favorite_border</mat-icon>
       <mat-icon aria-label="Favorit" *ngIf="room.favorite">favorite</mat-icon>
     </button>
-    <button mat-icon-button color="primary" routerLink="/room/{{room.id}}">
+    <button mat-icon-button color="primary" (click)="gotoRoomDetails()">
       <mat-icon aria-label="Details">more_horiz</mat-icon>
     </button>
   </mat-card-actions>
