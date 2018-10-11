@@ -1,25 +1,46 @@
 /* You can add global styles to this file, and also import other style files */
 @import '~@angular/material/theming';
+@include mat-core();
 @import url('//fonts.googleapis.com/icon?family=Material+Icons');
 
-@include mat-core();
+$tsystems-map: (
+  50 : #fce0ee,
+  100 : #f6b3d5,
+  200 : #f180ba,
+  300 : #eb4d9e,
+  400 : #e62689,
+  500 : #e20074,
+  600 : #df006c,
+  700 : #da0061,
+  800 : #d60057,
+  900 : #cf0044,
+  A100 : #fff6f9,
+  A200 : #ffc3d3,
+  A400 : #ff90ad,
+  A700 : #ff779a,
+  contrast: (
+      50 : #000000,
+      100 : #000000,
+      200 : #000000,
+      300 : #000000,
+      400 : #ffffff,
+      500 : #ffffff,
+      600 : #ffffff,
+      700 : #ffffff,
+      800 : #ffffff,
+      900 : #ffffff,
+      A100 : #000000,
+      A200 : #000000,
+      A400 : #000000,
+      A700 : #000000,
+  )
+);
 
-$primary: mat-palette($mat-blue-grey, 300);
-$accent:  mat-palette($mat-blue-grey, 100);
-$warn:    mat-palette($mat-red, 500);
+$tsystems-app-primary: mat-palette($tsystems-map);
+$tsystems-app-accent:  mat-palette($mat-indigo, A200, A100, A400);
+$tsystems-app-warn:    mat-palette($mat-red);
+$tsystems-app-theme: mat-light-theme($tsystems-app-primary, $tsystems-app-accent, $tsystems-app-warn);
+@include angular-material-theme($tsystems-app-theme);
 
-$config: mat-typography-config();
-
-
-$theme: mat-light-theme($primary, $accent, $warn);
-
-@include angular-material-theme($theme);
-
-body {
-  font-family: mat-font-family($config);
-  font-weight: normal;
-}
-
-h1, h2, h3, h4 {
-  font-weight: normal;
-}
+html, body { height: 100%; }
+body { margin: 0; font-family: 'Roboto', sans-serif; }
