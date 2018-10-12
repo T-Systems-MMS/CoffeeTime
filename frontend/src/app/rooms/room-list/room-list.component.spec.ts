@@ -13,10 +13,11 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RoomService } from '../room.service';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { StorageServiceModule } from 'ngx-webstorage-service';
+import { ComponentModule } from '../../../components/component.module';
 
 describe('RoomListComponent', () => {
-  let component: RoomListComponent;
-  let fixture: ComponentFixture<RoomListComponent>;
+    let component: RoomListComponent;
+    let fixture: ComponentFixture<RoomListComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -34,7 +35,8 @@ describe('RoomListComponent', () => {
         MatButtonModule,
         BrowserAnimationsModule,
         ServiceWorkerModule.register('', {enabled: false}),
-        StorageServiceModule
+        StorageServiceModule,
+        ComponentModule
       ],
       providers: [
         RoomService
@@ -43,13 +45,13 @@ describe('RoomListComponent', () => {
       .compileComponents();
   }));
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(RoomListComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+    beforeEach(() => {
+        fixture = TestBed.createComponent(RoomListComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
 });
