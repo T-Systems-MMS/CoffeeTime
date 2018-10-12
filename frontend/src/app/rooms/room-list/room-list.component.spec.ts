@@ -14,36 +14,38 @@ import { RoomService } from '../room.service';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { StorageServiceModule } from 'ngx-webstorage-service';
 import { ComponentModule } from '../../../components/component.module';
+import { MatDividerModule } from '@angular/material/divider';
 
 describe('RoomListComponent', () => {
     let component: RoomListComponent;
     let fixture: ComponentFixture<RoomListComponent>;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [
-        RoomListComponent,
-        RoomComponent
-      ],
-      imports: [
-        HttpClientModule,
-        MatToolbarModule,
-        MatIconModule,
-        MatExpansionModule,
-        MatCardModule,
-        MatSlideToggleModule,
-        MatButtonModule,
-        BrowserAnimationsModule,
-        ServiceWorkerModule.register('', {enabled: false}),
-        StorageServiceModule,
-        ComponentModule
-      ],
-      providers: [
-        RoomService
-      ],
-    })
-      .compileComponents();
-  }));
+    beforeEach(async(() => {
+        TestBed.configureTestingModule({
+            declarations: [
+                RoomListComponent,
+                RoomComponent
+            ],
+            imports: [
+                HttpClientModule,
+                MatToolbarModule,
+                MatIconModule,
+                MatExpansionModule,
+                MatCardModule,
+                MatSlideToggleModule,
+                MatButtonModule,
+                BrowserAnimationsModule,
+                ServiceWorkerModule.register('', { enabled: false }),
+                StorageServiceModule,
+                ComponentModule,
+                MatDividerModule
+            ],
+            providers: [
+                RoomService
+            ],
+        })
+            .compileComponents();
+    }));
 
     beforeEach(() => {
         fixture = TestBed.createComponent(RoomListComponent);

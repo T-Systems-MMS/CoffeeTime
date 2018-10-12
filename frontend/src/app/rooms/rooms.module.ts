@@ -12,6 +12,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { PushService } from './push.service';
 import { ComponentModule } from 'src/components/component.module';
@@ -32,6 +33,7 @@ import { ComponentModule } from 'src/components/component.module';
     MatSlideToggleModule,
     MatExpansionModule,
     MatGridListModule,
+    MatDividerModule,
     ComponentModule
   ],
   providers: [

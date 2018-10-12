@@ -8,36 +8,41 @@ import { HttpClientModule } from '@angular/common/http';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { StorageServiceModule } from 'ngx-webstorage-service';
+import { ComponentModule } from '../../../components/component.module';
+import { MatDividerModule } from '@angular/material/divider';
+
 describe('RoomDetailComponent', () => {
-  let component: RoomDetailComponent;
-  let fixture: ComponentFixture<RoomDetailComponent>;
+    let component: RoomDetailComponent;
+    let fixture: ComponentFixture<RoomDetailComponent>;
 
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      imports: [
-        HttpClientModule,
-        RouterTestingModule,
-        MatIconModule,
-        MatToolbarModule,
-        ServiceWorkerModule.register('', {enabled: false}),
-        StorageServiceModule,
-      ],
-      declarations: [RoomDetailComponent],
-      providers: [
-        RoomService
-      ]
-    })
-      .compileComponents();
-  }));
+    beforeEach(async(() => {
+        TestBed.configureTestingModule({
+            imports: [
+                HttpClientModule,
+                RouterTestingModule,
+                MatIconModule,
+                MatToolbarModule,
+                ServiceWorkerModule.register('', { enabled: false }),
+                StorageServiceModule,
+                ComponentModule,
+                MatDividerModule
+            ],
+            declarations: [RoomDetailComponent],
+            providers: [
+                RoomService
+            ]
+        })
+            .compileComponents();
+    }));
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(RoomDetailComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+    beforeEach(() => {
+        fixture = TestBed.createComponent(RoomDetailComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
 });
