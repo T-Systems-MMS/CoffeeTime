@@ -21,14 +21,20 @@ export class AWSBeService {
   private callBe(roomId: string): void {
     Logger.log(`Calling: ${roomId}`);
     request.get({url: `${AWSBeService.BE_URL}${roomId}`, json: true}, (error, response, body) => {
-      this.processData(body);
+      if (error){
+        Logger.log(error);
+      } else {
+        this.processData(body);
+      }
     });
   }
 
   private processData(data: AWSResponse[]): void{
-    const fillings = data.map(value => new Filling(value.timestamp, value.message.filling));
-    if (fillings){
-      this.storage.updateHistory(data[0].location, fillings);
+    if (data) {
+      const fillings = data.map(value => new Filling(value.timestamp, value.message.filling));
+      if (fillings){
+        this.storage.updateHistory(data[0].location, fillings);
+      }
     }
   }
 }
