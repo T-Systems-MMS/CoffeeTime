@@ -24,13 +24,15 @@ export class AWSBeService {
       if (error){
         Logger.log(error);
       } else {
-        this.processData(body);
+        if (response && response.statusCode === 200){
+          this.processData(body);
+        }
       }
     });
   }
 
   private processData(data: AWSResponse[]): void{
-    if (data) {
+    if (data && data.map) {
       const fillings = data.map(value => new Filling(value.timestamp, value.message.filling));
       if (fillings){
         this.storage.updateHistory(data[0].location, fillings);
