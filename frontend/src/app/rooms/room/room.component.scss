@@ -16,11 +16,15 @@ app-chart {
   padding-top: 10px;
 }
 
+.push-label {
+  padding-left: 10px;
+}
+
 .push-toogles {
   align-items: flex-end;
   display: flex;
   flex-direction: column;
-  padding-right: 50px;
+  padding-right: 20px;
 
   .push-toggle {
     margin-bottom: 20px;

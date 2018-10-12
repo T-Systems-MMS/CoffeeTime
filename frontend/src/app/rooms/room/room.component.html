@@ -12,7 +12,7 @@
   </mat-card-header>
   <mat-card-content>
     <app-chart [data]="data" type="Line" [options]="options" [responsiveOptions]="responsiveOptions"></app-chart>
-    <p>Push-Nachrichten</p>
+    <span class="push-label">Benachrichtigen</span>
     <div class="push-toogles">
       <div class="push-toggle">
         <mat-slide-toggle [labelPosition]="'before'" [color]="color" [checked]="checked" [disabled]="disabled" (change)="toogleIfFreePush($event)">
