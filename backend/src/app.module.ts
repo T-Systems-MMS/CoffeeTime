@@ -8,6 +8,6 @@ import { StorageService } from 'storage.service';
 @Module({
   imports: [ ],
   controllers: [ApiController],
-  providers: [RoomService, ScheduleService, AWSBeService, StorageService] ,
+  providers: [RoomService, ScheduleService, AWSBeService, StorageService],
 })
 export class AppModule {}
