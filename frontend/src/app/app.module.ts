@@ -10,6 +10,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { RoomsModule } from './rooms/rooms.module';
 import { StorageServiceModule } from 'ngx-webstorage-service';
+import { ComponentModule } from '../components/component.module';
 
 @NgModule({
   declarations: [
@@ -24,6 +25,7 @@ import { StorageServiceModule } from 'ngx-webstorage-service';
     RoomsModule,
     AppRoutingModule,   // -> after all other modules with routes
     StorageServiceModule,
+    ComponentModule
   ],
   bootstrap: [AppComponent]
 })

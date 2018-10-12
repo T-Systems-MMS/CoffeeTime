@@ -14,6 +14,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { PushService } from './push.service';
+import { ComponentModule } from 'src/components/component.module';
 
 @NgModule({
   declarations: [
@@ -30,7 +31,8 @@ import { PushService } from './push.service';
     MatButtonModule,
     MatSlideToggleModule,
     MatExpansionModule,
-    MatGridListModule
+    MatGridListModule,
+    ComponentModule
   ],
   providers: [
     RoomService, PushService
