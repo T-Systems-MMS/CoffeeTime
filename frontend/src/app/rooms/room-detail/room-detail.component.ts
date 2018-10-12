@@ -16,15 +16,15 @@ export class RoomDetailComponent implements OnInit {
         series: [{
             name: 'filling',
             data: [
-                { x: new Date('12.27.2017 12:30'), y: 20 },
-                { x: new Date('12.27.2017 12:31'), y: 95 },
-                { x: new Date('12.27.2017 12:32'), y: 80 },
-                { x: new Date('12.27.2017 12:33'), y: 30 },
-                { x: new Date('12.27.2017 12:34'), y: 10 },
-                { x: new Date('12.27.2017 12:41'), y: 30 },
-                { x: new Date('12.27.2017 12:43'), y: 30 },
-                { x: new Date('12.27.2017 12:43'), y: 20 },
-                { x: new Date('12.27.2017 12:54'), y: 20 },
+                { x: new Date('2017-12-27T12:30:00'), y: 20 },
+                { x: new Date('2017-12-27T12:31:00'), y: 95 },
+                { x: new Date('2017-12-27T12:32:00'), y: 80 },
+                { x: new Date('2017-12-27T12:33:00'), y: 30 },
+                { x: new Date('2017-12-27T12:34:00'), y: 10 },
+                { x: new Date('2017-12-27T12:41:00'), y: 30 },
+                { x: new Date('2017-12-27T12:43:00'), y: 30 },
+                { x: new Date('2017-12-27T12:43:00'), y: 20 },
+                { x: new Date('2017-12-27T12:54:00'), y: 20 },
             ]
         }]
     };
@@ -48,7 +48,7 @@ export class RoomDetailComponent implements OnInit {
         showPoint: false,
         showArea: true,
         plugins: [
-            thresholdPlugin({ thresholds: [15, 60] })
+            thresholdPlugin({ thresholds: [15, 60] }),
         ]
     };
     responsiveOptions = [];
