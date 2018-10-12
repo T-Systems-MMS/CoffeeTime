@@ -1,0 +1,41 @@
+<mat-card *ngIf="room">
+  <mat-card-header>
+    <mat-card-title>
+      <mat-icon aria-label="Küche" *ngIf="room.type == 'kitchen'">local_cafe</mat-icon>
+      <mat-icon aria-label="Sitzecke" *ngIf="room.type == 'area'">meeting_room</mat-icon>
+      {{room.name}}
+    </mat-card-title>
+    <mat-card-subtitle>{{room.status}}</mat-card-subtitle>
+
+  </mat-card-header>
+
+  <mat-card-content>
+    <app-chart [data]="data" type="Line" [options]="options" [responsiveOptions]="responsiveOptions"></app-chart>
+
+    {{room.value}}
+
+    <p>Push</p>
+    <section class="push">
+      <p>
+        <mat-slide-toggle class="example-margin" [color]="color" [checked]="checked" [disabled]="disabled" (change)="toogleIfFreePush($event)">
+          wenn frei
+        </mat-slide-toggle>
+      </p>
+      <p>
+        <mat-slide-toggle class="example-margin" [color]="color" [checked]="checked" [disabled]="disabled" (change)="toogleRecommendationsPush($event)">
+          Empfehlungen
+        </mat-slide-toggle>
+      </p>
+    </section>
+  </mat-card-content>
+
+  <mat-card-actions>
+    <button mat-icon-button color="primary" (click)="toogleFavorite()">
+      <mat-icon aria-label="Favorit" *ngIf="!room.favorite">favorite_border</mat-icon>
+      <mat-icon aria-label="Favorit" *ngIf="room.favorite">favorite</mat-icon>
+    </button>
+    <button mat-icon-button color="primary" (click)="gotoRoomDetails()">
+      <mat-icon aria-label="Details">more_horiz</mat-icon>
+    </button>
+  </mat-card-actions>
+</mat-card>
