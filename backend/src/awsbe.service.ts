@@ -1,4 +1,4 @@
-import { Injectable, HttpService, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { AWSResponse } from 'domain/awsresponse';
 import * as request from 'request';
 import { Filling } from 'domain/filling';
@@ -6,7 +6,7 @@ import { StorageService } from 'storage.service';
 
 @Injectable()
 export class AWSBeService {
-  constructor(private readonly http: HttpService, private readonly storage: StorageService){
+  constructor(private readonly storage: StorageService){
   }
 
   private static KNOWN_ROOMS = ['sitzecke', 'R5-119'];

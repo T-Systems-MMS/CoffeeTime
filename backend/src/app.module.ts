@@ -3,12 +3,11 @@ import { ApiController } from './api.controller';
 import { RoomService } from './room.service';
 import { ScheduleService } from 'schedule.service';
 import { AWSBeService } from 'awsbe.service';
+import { StorageService } from 'storage.service';
 
 @Module({
-  imports: [ HttpModule.register({
-    proxy: false,
-  }) ],
+  imports: [ ],
   controllers: [ApiController],
-  providers: [RoomService, ScheduleService, AWSBeService],
+  providers: [RoomService, ScheduleService, AWSBeService, StorageService] ,
 })
 export class AppModule {}
