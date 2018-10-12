@@ -2,7 +2,7 @@
   <button mat-icon-button (click)="gotoRooms()">
     <mat-icon aria-label="label">arrow_back_ios</mat-icon>
   </button>
-  <span>Küche</span>
+  <span>{{room.name}}</span>
 </mat-toolbar>
 
 
@@ -13,7 +13,7 @@ eine Grafik
   <span>durchschnittliche Wartezeit</span>
 </p>
 <p>
-  <span>30 min</span>
+  <span>{{room.averageOccupancy}} min</span>
 </p>
 
 <p>
@@ -21,5 +21,5 @@ eine Grafik
   <span>durchschnittliche Belegung</span>
 </p>
 <p>
-  <span>50%</span>
+  <span>{{room.averageWaitingTime}} %</span>
 </p>

@@ -9,11 +9,12 @@ import { environment } from '../environments/environment';
 import { AppRoutingModule } from './app-routing.module';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { RoomsModule } from './rooms/rooms.module';
+import { StorageServiceModule } from 'ngx-webstorage-service';
 
 @NgModule({
   declarations: [
     AppComponent,
-    PageNotFoundComponent,
+    PageNotFoundComponent
   ],
   imports: [
     BrowserModule,
@@ -22,6 +23,7 @@ import { RoomsModule } from './rooms/rooms.module';
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
     RoomsModule,
     AppRoutingModule,   // -> after all other modules with routes
+    StorageServiceModule,
   ],
   bootstrap: [AppComponent]
 })

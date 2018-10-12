@@ -6,6 +6,8 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { RoomService } from '../room.service';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterTestingModule } from '@angular/router/testing';
+import { ServiceWorkerModule } from '@angular/service-worker';
+import { StorageServiceModule } from 'ngx-webstorage-service';
 describe('RoomDetailComponent', () => {
   let component: RoomDetailComponent;
   let fixture: ComponentFixture<RoomDetailComponent>;
@@ -17,7 +19,9 @@ describe('RoomDetailComponent', () => {
         HttpClientModule,
         RouterTestingModule,
         MatIconModule,
-        MatToolbarModule
+        MatToolbarModule,
+        ServiceWorkerModule.register('', {enabled: false}),
+        StorageServiceModule,
       ],
       declarations: [RoomDetailComponent],
       providers: [

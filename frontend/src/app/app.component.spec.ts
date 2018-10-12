@@ -12,8 +12,6 @@ describe('AppComponent', () => {
         AppComponent
       ],
       imports: [
-        MatToolbarModule,
-        MatIconModule,
         RouterTestingModule,
       ],
       providers: [],

@@ -1,24 +1,22 @@
 import { TestBed } from '@angular/core/testing';
 
-import { RoomService } from './room.service';
-import { HttpClientModule } from '@angular/common/http';
+import { PushService } from './push.service';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { StorageServiceModule } from 'ngx-webstorage-service';
+import { HttpClientModule } from '@angular/common/http';
 
-describe('RoomService', () => {
+describe('PushService', () => {
   beforeEach(() => TestBed.configureTestingModule({
     imports: [
-      HttpClientModule,
       ServiceWorkerModule.register('', {enabled: false}),
-      StorageServiceModule
-    ],
-    providers: [
-      RoomService
+      StorageServiceModule,
+      HttpClientModule
     ]
+
   }));
 
   it('should be created', () => {
-    const service: RoomService = TestBed.get(RoomService);
+    const service: PushService = TestBed.get(PushService);
     expect(service).toBeTruthy();
   });
 });

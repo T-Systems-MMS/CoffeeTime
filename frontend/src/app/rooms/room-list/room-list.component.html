@@ -3,18 +3,15 @@
   <span>CoffeeTime</span>
 </mat-toolbar>
 
-<mat-expansion-panel expanded=true>
-  <app-room [room]=joke></app-room>
+<mat-expansion-panel expanded=true *ngIf="hasFavoriteRooms()">
+  <app-room [room]=room *ngFor="let room of favoriteRooms"></app-room>
 </mat-expansion-panel>
 
-<mat-expansion-panel>
-  <mat-expansion-panel-header>
+<mat-expansion-panel [expanded]="!hasFavoriteRooms()" *ngIf="hasRooms()">
+  <mat-expansion-panel-header *ngIf="hasFavoriteRooms()">
     <mat-panel-title>
       weitere Orte
     </mat-panel-title>
   </mat-expansion-panel-header>
-  <ng-template matExpansionPanelContent>
-    <!-- lazy loading -->
-    <app-room [room]=joke></app-room>
-  </ng-template>
+  <app-room [room]=room *ngFor="let room of rooms"></app-room>
 </mat-expansion-panel>
