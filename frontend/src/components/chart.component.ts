@@ -52,7 +52,7 @@ export class ChartComponent implements OnInit, OnChanges, OnDestroy {
     @Input()
     public events: ChartEvent;
 
-    public chart: IChartistBase<IChartOptions>;
+    private chart: IChartistBase<IChartOptions>;
 
     private element: HTMLElement;
 
