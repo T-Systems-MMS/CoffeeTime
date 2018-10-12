@@ -10,30 +10,32 @@ import { HttpClientModule } from '@angular/common/http';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { StorageServiceModule } from 'ngx-webstorage-service';
 import { ComponentModule } from '../../../components/component.module';
+import { MatDividerModule } from '@angular/material/divider';
 
 describe('RoomComponent', () => {
     let component: RoomComponent;
     let fixture: ComponentFixture<RoomComponent>;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [
-        RoomComponent
-      ],
-      imports: [
-        MatCardModule,
-        MatIconModule,
-        MatButtonModule,
-        MatSlideToggleModule,
-        HttpClientModule,
-        RouterTestingModule,
-        ServiceWorkerModule.register('', {enabled: false}),
-        StorageServiceModule,
-        ComponentModule
-      ]
-    })
-      .compileComponents();
-  }));
+    beforeEach(async(() => {
+        TestBed.configureTestingModule({
+            declarations: [
+                RoomComponent
+            ],
+            imports: [
+                MatCardModule,
+                MatIconModule,
+                MatButtonModule,
+                MatSlideToggleModule,
+                HttpClientModule,
+                RouterTestingModule,
+                ServiceWorkerModule.register('', { enabled: false }),
+                StorageServiceModule,
+                ComponentModule,
+                MatDividerModule
+            ]
+        })
+            .compileComponents();
+    }));
 
     beforeEach(() => {
         fixture = TestBed.createComponent(RoomComponent);
