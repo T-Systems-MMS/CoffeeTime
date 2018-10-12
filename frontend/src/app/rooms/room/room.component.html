@@ -1,35 +1,33 @@
-<mat-card *ngIf="room">
-  <mat-card-header>
-    <mat-card-title>
-      <mat-icon aria-label="Küche" *ngIf="room.type == 'kitchen'">local_cafe</mat-icon>
-      <mat-icon aria-label="Sitzecke" *ngIf="room.type == 'area'">meeting_room</mat-icon>
+<mat-card *ngIf="room" class="room-card">
+  <mat-card-header class="room-card-header">
+    <div class="room-icon" mat-card-avatar>
+      <mat-icon aria-label="Küche" *ngIf="room.type === 'kitchen'">local_cafe</mat-icon>
+      <mat-icon aria-label="Sitzecke" *ngIf="room.type === 'area'">meeting_room</mat-icon>
+      <mat-icon aria-label="Sitzecke" *ngIf="room.type !== 'area' && room.type !== 'kitchen'">trip_origin</mat-icon>
+    </div>
+    <mat-card-title class="room-title">
       {{room.name}}
     </mat-card-title>
-    <mat-card-subtitle>{{room.status}}</mat-card-subtitle>
-
+    <mat-card-subtitle class="room-title">{{room.status}}</mat-card-subtitle>
   </mat-card-header>
-
   <mat-card-content>
     <app-chart [data]="data" type="Line" [options]="options" [responsiveOptions]="responsiveOptions"></app-chart>
-
-    {{room.value}}
-
-    <p>Push</p>
-    <section class="push">
-      <p>
-        <mat-slide-toggle class="example-margin" [color]="color" [checked]="checked" [disabled]="disabled" (change)="toogleIfFreePush($event)">
+    <p>Push-Nachrichten</p>
+    <div class="push-toogles">
+      <div class="push-toggle">
+        <mat-slide-toggle [labelPosition]="'before'" [color]="color" [checked]="checked" [disabled]="disabled" (change)="toogleIfFreePush($event)">
           wenn frei
         </mat-slide-toggle>
-      </p>
-      <p>
-        <mat-slide-toggle class="example-margin" [color]="color" [checked]="checked" [disabled]="disabled" (change)="toogleRecommendationsPush($event)">
+      </div>
+      <div>
+        <mat-slide-toggle [labelPosition]="'before'" [color]="color" [checked]="checked" [disabled]="disabled" (change)="toogleRecommendationsPush($event)">
           Empfehlungen
         </mat-slide-toggle>
-      </p>
-    </section>
+      </div>
+    </div>
   </mat-card-content>
-
-  <mat-card-actions>
+  <mat-divider></mat-divider>
+  <mat-card-actions class="room-actions">
     <button mat-icon-button color="primary" (click)="toogleFavorite()">
       <mat-icon aria-label="Favorit" *ngIf="!room.favorite">favorite_border</mat-icon>
       <mat-icon aria-label="Favorit" *ngIf="room.favorite">favorite</mat-icon>

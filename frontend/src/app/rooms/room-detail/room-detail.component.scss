@@ -1,0 +1,21 @@
+.toolbar-label {
+  margin-left: 10px;
+}
+
+.room-detail-content {
+  padding: 20px;
+}
+
+.content-group {
+  margin-top: 10px;
+
+  .content-row {
+    align-items: center;
+    display: flex;
+    padding: 5px 0;
+
+    mat-icon {
+      margin-right: 10px;
+    }
+  }
+}

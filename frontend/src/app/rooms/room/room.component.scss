@@ -1,0 +1,45 @@
+.room-title {
+  margin-left: 10px;
+}
+
+.room-icon {
+  mat-icon {
+    color: #e20074;
+    font-size: 50px;
+    height: 50px;
+    width: 50px;
+  }
+}
+
+app-chart {
+  display: block;
+  padding-top: 10px;
+}
+
+.push-toogles {
+  align-items: flex-end;
+  display: flex;
+  flex-direction: column;
+  padding-right: 50px;
+
+  .push-toggle {
+    margin-bottom: 20px;
+  }
+}
+
+.room-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.room-card {
+  margin-bottom: 20px;
+}
+
+:host ::ng-deep {
+  .mat-slide-toggle-label-before {
+    .mat-slide-toggle-bar {
+      margin-left: 15px;
+    }
+  }
+}
