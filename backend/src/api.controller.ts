@@ -4,11 +4,12 @@ import { Room } from './domain/room';
 import { Push } from './domain/push';
 import { PushSubscription } from './domain/pushsubscription';
 import { PushUnSubscription } from './domain/pushunsubscription';
+import { PushService } from 'push.service';
 
 @Controller()
 export class ApiController {
   private static AUTH_HEADER_NAME = 'PUSH_SUBSCRIPTION_AUTH'.toLowerCase();
-  constructor(private readonly roomService: RoomService) {}
+  constructor(private readonly roomService: RoomService, private readonly pushService: PushService) {}
 
   @Get('/api/rooms')
   rooms(@Headers(ApiController.AUTH_HEADER_NAME) subscriptionAuth): Array<Room> {
@@ -20,8 +21,7 @@ export class ApiController {
     if (!subscriptionAuth){
       throw new HttpException('Missing Auth Header', 400);
     }
-    Logger.log(`Got Room id: ${id}`);
-    Logger.log(`Body: ${push}`);
+    this.pushService.update(subscriptionAuth, id, push);
   }
 
   @Get('/api/room/:room_id')
@@ -31,11 +31,11 @@ export class ApiController {
 
   @Post('/api/push')
   createPush(@Body() pushSubscription: PushSubscription){
-    Logger.log(`Body: ${pushSubscription}`);
+    this.pushService.save(pushSubscription);
   }
 
   @Delete('/api/push')
   deletePush(@Body() pushUnSubscription: PushUnSubscription){
-    Logger.log(`Body: ${pushUnSubscription}`);
+    this.pushService.delete(pushUnSubscription.auth);
   }
 }

@@ -19,7 +19,6 @@ export class AWSBeService {
   }
 
   private callBe(roomId: string): void {
-    Logger.log(`Calling: ${roomId}`);
     request.get({url: `${AWSBeService.BE_URL}${roomId}`, json: true}, (error, response, body) => {
       if (error){
         Logger.log(error);
