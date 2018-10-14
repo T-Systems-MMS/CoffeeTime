@@ -4,28 +4,35 @@ import { ApiController } from './api.controller';
 import { RoomService } from './room.service';
 import { ScheduleService } from 'schedule.service';
 import { AWSBeService } from 'awsbe.service';
-import { StorageService } from 'storage.service';
 import { PushDataSchema } from 'domain/schema/pushdata.schema';
 import { PushService } from 'push.service';
 import { Modelnames } from 'domain/schema/modelnames';
-import { Logger } from 'mongodb';
 import { PushSubscriptionDataSchema } from 'domain/schema/pushsubscriptiondata.schema';
+import { RoomDataSchema } from 'domain/schema/roomdata.schema';
+import { ForecastSchema } from 'domain/schema/forecast.schema';
 
 @Module({
   imports: [
-    MongooseModule.forRoot(process.env.MONGOLAB_URI,
+    MongooseModule.forRoot(process.env.MONGOLAB_URI, {
+      useNewUrlParser: true,
+      family: 4,
+    }),
+    MongooseModule.forFeature([
+      { name: Modelnames.PUSH_DATA, schema: PushDataSchema },
       {
-        useNewUrlParser: true,
-        family: 4,
-      }),
-    MongooseModule.forFeature(
-      [
-        {name: Modelnames.PUSH_DATA, schema: PushDataSchema},
-        {name: Modelnames.PUSH_SUBSCRIPTION_DATA, schema: PushSubscriptionDataSchema},
-      ],
-    ),
+        name: Modelnames.PUSH_SUBSCRIPTION_DATA,
+        schema: PushSubscriptionDataSchema,
+      },
+      { name: Modelnames.ROOM_DATA, schema: RoomDataSchema },
+      { name: Modelnames.FORECAST_DATA, schema: ForecastSchema },
+    ]),
   ],
   controllers: [ApiController],
-  providers: [RoomService, PushService, ScheduleService, AWSBeService, StorageService],
+  providers: [
+    RoomService,
+    PushService,
+    ScheduleService,
+    AWSBeService,
+  ],
 })
 export class AppModule {}

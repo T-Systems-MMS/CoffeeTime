@@ -2,11 +2,11 @@ import { Injectable, Logger } from '@nestjs/common';
 import { AWSResponse } from 'domain/awsresponse';
 import * as request from 'request';
 import { Filling } from 'domain/filling';
-import { StorageService } from 'storage.service';
+import { RoomService } from 'room.service';
 
 @Injectable()
 export class AWSBeService {
-  constructor(private readonly storage: StorageService){
+  constructor(private readonly roomService: RoomService){
   }
 
   private static KNOWN_ROOMS = ['sitzecke', 'R5-119'];
@@ -32,9 +32,9 @@ export class AWSBeService {
 
   private processData(data: AWSResponse[]): void{
     if (data && data.map) {
-      const fillings = data.map(value => new Filling(value.timestamp, value.message.filling));
+      const fillings = data.map(value => new Filling(value.timestamp, Math.min(1.0, value.message.filling)));
       if (fillings){
-        this.storage.updateHistory(data[0].location, fillings);
+        this.roomService.updateRoom(data[0].location, fillings);
       }
     }
   }

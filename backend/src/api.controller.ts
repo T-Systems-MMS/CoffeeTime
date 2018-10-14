@@ -5,6 +5,7 @@ import { Push } from './domain/push';
 import { PushSubscription } from './domain/pushsubscription';
 import { PushUnSubscription } from './domain/pushunsubscription';
 import { PushService } from 'push.service';
+import { RoomData } from 'domain/schema/roomdata.interface';
 
 @Controller()
 export class ApiController {
@@ -12,7 +13,7 @@ export class ApiController {
   constructor(private readonly roomService: RoomService, private readonly pushService: PushService) {}
 
   @Get('/api/rooms')
-  rooms(@Headers(ApiController.AUTH_HEADER_NAME) subscriptionAuth): Array<Room> {
+  rooms(@Headers(ApiController.AUTH_HEADER_NAME) subscriptionAuth): Promise<Array<RoomData>> {
     return this.roomService.rooms();
   }
 
