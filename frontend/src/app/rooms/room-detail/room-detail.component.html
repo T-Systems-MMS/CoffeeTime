@@ -1,32 +1,28 @@
-<mat-toolbar color="primary">
-  <button mat-icon-button (click)="gotoRooms()">
-    <mat-icon aria-label="label">arrow_back_ios</mat-icon>
-  </button>
-  <mat-icon aria-label="Küche" *ngIf="room && room.type === 'kitchen'">local_cafe</mat-icon>
-  <mat-icon aria-label="Sitzecke" *ngIf="room && room.type === 'area'">meeting_room</mat-icon>
-  <mat-icon aria-label="Sitzecke" *ngIf="!room || room.type !== 'area' && room.type !== 'kitchen'">trip_origin</mat-icon>
-  <span class="toolbar-label" *ngIf="room">{{room.name}}</span>
-</mat-toolbar>
-<div class="room-detail-content" *ngIf="room">
-  <app-chart [data]="data" type="Line" [options]="options" [responsiveOptions]="responsiveOptions"></app-chart>
-  <mat-divider></mat-divider>
-  <div class="content-group">
-    <div class="content-row">
-      <mat-icon>timer</mat-icon>
-      <span>durchschnittliche Wartezeit</span>
+<app-frame [label]="room ? room.name : ''" (back)="gotoRooms()">
+  <mat-icon icon aria-label="Küche" *ngIf="room && room.type === 'kitchen'">local_cafe</mat-icon>
+  <mat-icon icon aria-label="Sitzecke" *ngIf="room && room.type === 'area'">meeting_room</mat-icon>
+  <mat-icon icon aria-label="Sitzecke" *ngIf="!room || room.type !== 'area' && room.type !== 'kitchen'">trip_origin</mat-icon>
+  <div content class="room-detail-content" *ngIf="room">
+    <app-chart [data]="data" type="Line" [options]="options" [responsiveOptions]="responsiveOptions"></app-chart>
+    <mat-divider></mat-divider>
+    <div class="content-group">
+      <div class="content-row">
+        <mat-icon>timer</mat-icon>
+        <span>durchschnittliche Wartezeit</span>
+      </div>
+      <div class="content-row">
+        <span>{{room.averageWaitingTime | averageWaitingTime }}</span>
+      </div>
     </div>
-    <div class="content-row">
-      <span>{{room.averageWaitingTime | averageWaitingTime }}</span>
-    </div>
-  </div>
-  <mat-divider></mat-divider>
-  <div class="content-group">
-    <div class="content-row">
-      <mat-icon>group</mat-icon>
-      <span>durchschnittliche Belegung</span>
-    </div>
-    <div class="content-row">
-      <span>{{room.averageOccupancy | averageOccupancy }}</span>
+    <mat-divider></mat-divider>
+    <div class="content-group">
+      <div class="content-row">
+        <mat-icon>group</mat-icon>
+        <span>durchschnittliche Belegung</span>
+      </div>
+      <div class="content-row">
+        <span>{{room.averageOccupancy | averageOccupancy }}</span>
+      </div>
     </div>
   </div>
-</div>
+</app-frame>

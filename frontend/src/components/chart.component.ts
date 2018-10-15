@@ -5,7 +5,8 @@ import {
     OnChanges,
     OnDestroy,
     OnInit,
-    SimpleChanges
+    SimpleChanges,
+    Attribute
 } from '@angular/core';
 
 import {
@@ -41,9 +42,6 @@ export class ChartComponent implements OnInit, OnChanges, OnDestroy {
     public data: IChartistData;
 
     @Input()
-    public type: string;
-
-    @Input()
     public options: IChartOptions;
 
     @Input()
@@ -56,7 +54,7 @@ export class ChartComponent implements OnInit, OnChanges, OnDestroy {
 
     private element: HTMLElement;
 
-    constructor(element: ElementRef) {
+    constructor(element: ElementRef, @Attribute('type') public type: string) {
         this.element = element.nativeElement;
     }
 

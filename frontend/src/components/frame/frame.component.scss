@@ -1,0 +1,20 @@
+mat-toolbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 10;
+}
+
+.toolbar-label {
+  margin-left: 10px;
+}
+
+.content {
+  margin-top: 64px;
+}
+
+@media (max-width: 599px) {
+  .content {
+    margin-top: 56px;
+  }
+}
