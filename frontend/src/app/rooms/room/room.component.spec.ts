@@ -11,36 +11,37 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { StorageServiceModule } from 'ngx-webstorage-service';
 import { ComponentModule } from '../../../components/component.module';
 import { MatDividerModule } from '@angular/material/divider';
+import { Room } from '../room';
 
 describe('RoomComponent', () => {
     let component: RoomComponent;
     let fixture: ComponentFixture<RoomComponent>;
 
-    beforeEach(async(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                RoomComponent
-            ],
-            imports: [
-                MatCardModule,
-                MatIconModule,
-                MatButtonModule,
-                MatSlideToggleModule,
-                HttpClientModule,
-                RouterTestingModule,
-                ServiceWorkerModule.register('', { enabled: false }),
-                StorageServiceModule,
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      declarations: [
+        RoomComponent
+      ],
+      imports: [
+        MatCardModule,
+        MatIconModule,
+        MatButtonModule,
+        MatSlideToggleModule,
+        HttpClientModule,
+        RouterTestingModule,
+        ServiceWorkerModule.register('', {enabled: false}),
+        StorageServiceModule,
                 ComponentModule,
                 MatDividerModule
-            ]
-        })
-            .compileComponents();
-    }));
+      ]
+    })
+      .compileComponents();
+  }));
 
     beforeEach(() => {
         fixture = TestBed.createComponent(RoomComponent);
         component = fixture.componentInstance;
-        component.room = { value: 'foobar' };
+        component.room = new Room('foobar');
 
         fixture.detectChanges();
     });
