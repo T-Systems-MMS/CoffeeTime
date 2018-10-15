@@ -17,12 +17,12 @@ export class PushService {
     private http: HttpClient,
   ) { }
 
-  public getAuthToken(): Promise<string> {
+  getAuthToken(): Promise<string> {
     const auth_token = this.storage.get(STORAGE_KEY);
     return auth_token ? Promise.resolve(auth_token) : this.createSubscription();
   }
 
-  public deleteSubscription(): void {
+  deleteSubscription(): void {
     this.getAuthToken()
       .then(auth_token => {
         this.http.delete('/api/push', {
