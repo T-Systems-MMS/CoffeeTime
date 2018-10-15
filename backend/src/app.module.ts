@@ -10,6 +10,7 @@ import { Modelnames } from 'domain/schema/modelnames';
 import { PushSubscriptionDataSchema } from 'domain/schema/pushsubscriptiondata.schema';
 import { RoomDataSchema } from 'domain/schema/roomdata.schema';
 import { ForecastSchema } from 'domain/schema/forecast.schema';
+import { HistorySchema } from 'domain/schema/history.schema';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { ForecastSchema } from 'domain/schema/forecast.schema';
       },
       { name: Modelnames.ROOM_DATA, schema: RoomDataSchema },
       { name: Modelnames.FORECAST_DATA, schema: ForecastSchema },
+      { name: Modelnames.HISTORY_DATA, schema: HistorySchema },
     ]),
   ],
   controllers: [ApiController],

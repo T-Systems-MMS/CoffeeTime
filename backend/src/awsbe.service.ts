@@ -32,7 +32,7 @@ export class AWSBeService {
 
   private processData(data: AWSResponse[]): void{
     if (data && data.map) {
-      const fillings = data.map(value => new Filling(value.timestamp, Math.min(1.0, value.message.filling)));
+      const fillings = data.map(value => new Filling(new Date(value.timestamp), Math.min(1.0, value.message.filling)));
       if (fillings){
         this.roomService.updateRoom(data[0].location, fillings);
       }

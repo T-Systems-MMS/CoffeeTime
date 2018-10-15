@@ -12,7 +12,7 @@ export class ScheduleService extends NestSchedule {
     super();
   }
 
-  @Interval(2000)
+  @Interval(20000)
   logMich(): void {
     this.awsBeService.update();
 

@@ -7,6 +7,8 @@ import { Filling } from 'domain/filling';
 import { RoomType } from 'domain/roomtype.enum';
 import { RoomState } from 'domain/roomstate.enum';
 import { ForecastData } from 'domain/schema/forecastdata.interface';
+import { HistoryData } from 'domain/schema/historydata.interface';
+import * as moment from 'moment';
 
 @Injectable()
 export class RoomService {
@@ -15,32 +17,27 @@ export class RoomService {
     private readonly roomModel: Model<RoomData>,
     @InjectModel(Modelnames.FORECAST_DATA)
     private readonly forecastModel: Model<ForecastData>,
+    @InjectModel(Modelnames.HISTORY_DATA)
+    private readonly historyModel: Model<HistoryData>,
   ){}
 
   rooms(): Promise<Array<RoomData>> {
     return this.roomModel
-      .find({}, {'_id' : 0, '__v': 0,  'forecasts.numberOfValues': 0 })
+      .find({}, {'_id' : 0, '__v': 0,  'history': 0, 'forecasts.numberOfValues': 0 })
       .populate({
         path: 'forecasts',
         select: '-_id',
-        match : {occupancy: 110},
       })
       .exec();
   }
   room(roomId: string){
-        const history = [];
-        const now = Date.now();
-        for (let i = -(50 * 18000000); i < 0; i += 18000000) {
-            history.push({ timestamp: now + i, occupancy: Math.random() });
-        }
-    return {
-            id: roomId,
-      name: 'Raum der Stille',
-            type: RoomType.AREA,
-            history,
-      averageWaitingTime: 124,
-      averageOccupancy: 0.475,
-     };
+    return this.roomModel
+    .findOne({id: roomId}, {_id : 0, __v: 0,  forecasts: 0 })
+      .populate({
+        path: 'history',
+        select: '-_id',
+      })
+      .exec();
   }
 
   updateRoom(location: string, fillings: Filling[]): void {
@@ -59,6 +56,14 @@ export class RoomService {
       room.name = location;
       room.type = location.startsWith('sitz') ? RoomType.AREA : RoomType.KITCHEN;
       room.status = fillings[0].filling > 0.75 ? RoomState.FULL : (fillings[0].filling > 0.5 ?  RoomState.SEMIFULL : RoomState.FREE);
+      fillings.forEach(filling => {
+        const index = room.history.findIndex(value => value.timestamp === filling.timestamp.getTime());
+        if (index === -1){
+          room.history.push(new this.historyModel({occupancy: filling.filling, timestamp: filling.timestamp.getTime()}));
+        }
+      });
+      const lowerBound = moment().add(-3, 'days').unix();
+      room.history = room.history.filter(value => value.timestamp > lowerBound);
       room.save();
     });
   }
