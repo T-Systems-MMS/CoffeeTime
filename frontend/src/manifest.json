@@ -1,8 +1,8 @@
 {
-  "name": "frontend",
-  "short_name": "frontend",
-  "theme_color": "#1976d2",
-  "background_color": "#fafafa",
+  "name": "CoffeeTime",
+  "short_name": "CoffeeTime",
+  "theme_color": "#e20074",
+  "background_color": "#cf0044",
   "display": "standalone",
   "scope": "/",
   "start_url": "/",
