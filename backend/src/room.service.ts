@@ -21,7 +21,7 @@ export class RoomService {
     private readonly historyModel: Model<HistoryData>,
   ){}
 
-  rooms(): Promise<Array<RoomData>> {
+  rooms(subscriptionAuth?: string): Promise<Array<RoomData>> {
     return this.roomModel
       .find({}, {'_id' : 0, '__v': 0,  'history': 0, 'forecasts.numberOfValues': 0 })
       .populate({
