@@ -2,7 +2,7 @@
   <mat-icon icon aria-label="Küche" *ngIf="room && room.type === 'kitchen'">local_cafe</mat-icon>
   <mat-icon icon aria-label="Sitzecke" *ngIf="room && room.type === 'area'">meeting_room</mat-icon>
   <mat-icon icon aria-label="Sitzecke" *ngIf="!room || room.type !== 'area' && room.type !== 'kitchen'">trip_origin</mat-icon>
-  <div content class="room-detail-content" *ngIf="room">
+  <div content class="room-detail-content" *ngIf="room" (swiperight)="gotoRooms()">
     <app-chart [data]="data" type="Line" [options]="options" [responsiveOptions]="responsiveOptions"></app-chart>
     <mat-divider></mat-divider>
     <div class="content-group">

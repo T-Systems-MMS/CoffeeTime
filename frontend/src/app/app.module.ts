@@ -1,4 +1,4 @@
-import { BrowserModule } from '@angular/platform-browser';
+import { BrowserModule, HAMMER_GESTURE_CONFIG } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 
@@ -13,20 +13,20 @@ import { StorageServiceModule } from 'ngx-webstorage-service';
 import { ComponentModule } from '../components/component.module';
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    PageNotFoundComponent
-  ],
-  imports: [
-    BrowserModule,
-    HttpClientModule,
-    BrowserAnimationsModule,
-    ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
-    RoomsModule,
-    AppRoutingModule,   // -> after all other modules with routes
-    StorageServiceModule,
-    ComponentModule
-  ],
-  bootstrap: [AppComponent]
+    declarations: [
+        AppComponent,
+        PageNotFoundComponent
+    ],
+    imports: [
+        BrowserModule,
+        HttpClientModule,
+        BrowserAnimationsModule,
+        ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
+        RoomsModule,
+        AppRoutingModule,   // -> after all other modules with routes
+        StorageServiceModule,
+        ComponentModule
+    ],
+    bootstrap: [AppComponent]
 })
 export class AppModule { }
