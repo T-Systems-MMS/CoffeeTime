@@ -16,7 +16,7 @@
       <span>durchschnittliche Wartezeit</span>
     </div>
     <div class="content-row">
-      <span>{{room.averageOccupancy ? room.averageOccupancy + ' min' : 'n/a'}}</span>
+      <span>{{room.averageWaitingTime | averageWaitingTime }}</span>
     </div>
   </div>
   <mat-divider></mat-divider>
@@ -26,7 +26,7 @@
       <span>durchschnittliche Belegung</span>
     </div>
     <div class="content-row">
-      <span>{{room.averageWaitingTime ? room.averageWaitingTime + ' %' : 'n/a'}}</span>
+      <span>{{room.averageOccupancy | averageOccupancy }}</span>
     </div>
   </div>
 </div>
