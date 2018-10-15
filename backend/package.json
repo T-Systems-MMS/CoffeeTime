@@ -25,6 +25,7 @@
     "@nestjs/core": "^5.1.0",
     "@nestjs/mongoose": "^5.2.2",
     "compression": "^1.7.3",
+    "moment": "^2.22.2",
     "mongoose": "^5.3.3",
     "nest-schedule": "^0.4.1",
     "reflect-metadata": "^0.1.12",

@@ -18,7 +18,14 @@ export class RoomService {
   ){}
 
   rooms(): Promise<Array<RoomData>> {
-    return this.roomModel.find({}, {'_id' : 0, '__v': 0, 'forecasts._id': 0}).exec();
+    return this.roomModel
+      .find({}, {'_id' : 0, '__v': 0,  'forecasts.numberOfValues': 0 })
+      .populate({
+        path: 'forecasts',
+        select: '-_id',
+        match : {occupancy: 110},
+      })
+      .exec();
   }
   room(roomId: string){
         const history = [];
