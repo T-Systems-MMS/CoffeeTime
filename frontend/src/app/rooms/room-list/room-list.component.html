@@ -1,17 +1,14 @@
-<mat-toolbar color="primary">
-  <mat-icon>local_cafe</mat-icon>
-  <span class="toolbar-label">CoffeeTime</span>
-</mat-toolbar>
-
-<mat-expansion-panel expanded=true *ngIf="hasFavoriteRooms()">
-  <app-room [room]=room *ngFor="let room of favoriteRooms"></app-room>
-</mat-expansion-panel>
-
-<mat-expansion-panel [expanded]="!hasFavoriteRooms()" *ngIf="hasRooms()">
-  <mat-expansion-panel-header *ngIf="hasFavoriteRooms()">
-    <mat-panel-title>
-      weitere Orte
-    </mat-panel-title>
-  </mat-expansion-panel-header>
-  <app-room [room]=room *ngFor="let room of rooms"></app-room>
-</mat-expansion-panel>
+<app-frame label="CoffeeTime">
+  <mat-icon icon>local_cafe</mat-icon>
+  <mat-expansion-panel content expanded=true *ngIf="hasFavoriteRooms()">
+    <app-room [room]=room *ngFor="let room of favoriteRooms"></app-room>
+  </mat-expansion-panel>
+  <mat-expansion-panel content [expanded]="!hasFavoriteRooms()" *ngIf="hasRooms()">
+    <mat-expansion-panel-header *ngIf="hasFavoriteRooms()">
+      <mat-panel-title>
+        weitere Orte
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+    <app-room [room]=room *ngFor="let room of rooms"></app-room>
+  </mat-expansion-panel>
+</app-frame>

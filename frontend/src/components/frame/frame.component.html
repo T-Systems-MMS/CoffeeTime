@@ -1,0 +1,10 @@
+<mat-toolbar color="primary">
+  <button *ngIf="back.observers.length > 0" mat-icon-button (click)="back.emit()">
+    <mat-icon aria-label="label">arrow_back_ios</mat-icon>
+  </button>
+  <ng-content select="[icon]"></ng-content>
+  <span class="toolbar-label">{{label}}</span>
+</mat-toolbar>
+<div class="content">
+    <ng-content select="[content]"></ng-content>
+</div>
