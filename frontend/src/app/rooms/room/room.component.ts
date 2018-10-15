@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { Interpolation, FixedScaleAxis } from 'chartist';
 import { verticalLinePlugin } from '../../../components/verticalline.plugin';
 import { thresholdPlugin } from '../../../components/threshold.plugin';
+import { Room } from '../room';
 
 const STORGE_KEY = 'ct_favorites';
 @Component({
@@ -57,7 +58,7 @@ export class RoomComponent implements OnInit {
     };
     responsiveOptions = [];
 
-    @Input() room;
+    @Input() room: Room;
 
     constructor(
         private service: RoomService,
@@ -67,7 +68,7 @@ export class RoomComponent implements OnInit {
 
     ngOnInit() { }
 
-    public toogleFavorite() {
+    toogleFavorite(): void {
         this.room.favorite = !this.room.favorite;
 
         // get favorites from storage and remove current room-id if present
@@ -80,15 +81,15 @@ export class RoomComponent implements OnInit {
         this.storage.set(STORGE_KEY, favorites);
     }
 
-    public toogleIfFreePush(event: MatSlideToggleChange) {
+    toogleIfFreePush(event: MatSlideToggleChange): void {
         this.service.togglePush(this.room, 'ifFree', event.checked);
     }
 
-    public toogleRecommendationsPush(event: MatSlideToggleChange) {
+    toogleRecommendationsPush(event: MatSlideToggleChange): void {
         this.service.togglePush(this.room, 'recommendations', event.checked);
     }
 
-    public gotoRoomDetails() {
+    gotoRoomDetails(): void {
         this.router.navigateByUrl(`/room/${this.room.id}`);
     }
 }
