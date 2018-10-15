@@ -16,12 +16,16 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { PushService } from './push.service';
 import { ComponentModule } from 'src/components/component.module';
+import { AverageWaitingTimePipe } from './average-waiting-time.pipe';
+import { AverageOccupancyPipe } from './average-occupancy.pipe';
 
 @NgModule({
   declarations: [
     RoomComponent,
     RoomListComponent,
-    RoomDetailComponent
+    RoomDetailComponent,
+    AverageWaitingTimePipe,
+    AverageOccupancyPipe
   ],
   imports: [
     CommonModule,

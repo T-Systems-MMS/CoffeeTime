@@ -10,6 +10,8 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { StorageServiceModule } from 'ngx-webstorage-service';
 import { ComponentModule } from '../../../components/component.module';
 import { MatDividerModule } from '@angular/material/divider';
+import { AverageOccupancyPipe } from '../average-occupancy.pipe';
+import { AverageWaitingTimePipe } from '../average-waiting-time.pipe';
 
 describe('RoomDetailComponent', () => {
     let component: RoomDetailComponent;
@@ -26,11 +28,15 @@ describe('RoomDetailComponent', () => {
                 ServiceWorkerModule.register('', { enabled: false }),
                 StorageServiceModule,
                 ComponentModule,
-                MatDividerModule
+                MatDividerModule,
             ],
-            declarations: [RoomDetailComponent],
+            declarations: [
+                RoomDetailComponent,
+                AverageOccupancyPipe,
+                AverageWaitingTimePipe
+            ],
             providers: [
-                RoomService
+                RoomService,
             ]
         })
             .compileComponents();
