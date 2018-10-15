@@ -5,6 +5,7 @@ export const ForecastSchema = new mongoose.Schema({
     numberOfValues: mongoose.Schema.Types.Number,
     forecastFor: mongoose.Schema.Types.Number,
 }, { id: false, toJSON: { virtuals: true }});
+
 ForecastSchema.virtual('timestamp').get(function() {
     const now = moment().locale('de');
     const nowFor = now.hours() * 100 + now.minutes();

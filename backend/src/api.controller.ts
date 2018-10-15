@@ -1,6 +1,5 @@
-import { Get, Controller,  Headers, Logger, Put, Param, HttpException, Body, Post, Delete } from '@nestjs/common';
+import { Get, Controller,  Headers, Put, Param, HttpException, Body, Post, Delete } from '@nestjs/common';
 import { RoomService } from './room.service';
-import { Room } from './domain/room';
 import { Push } from './domain/push';
 import { PushSubscription } from './domain/pushsubscription';
 import { PushUnSubscription } from './domain/pushunsubscription';
@@ -14,7 +13,7 @@ export class ApiController {
 
   @Get('/api/rooms')
   rooms(@Headers(ApiController.AUTH_HEADER_NAME) subscriptionAuth): Promise<Array<RoomData>> {
-    return this.roomService.rooms();
+    return this.roomService.rooms(subscriptionAuth);
   }
 
   @Put('/api/room/:room_id/push')

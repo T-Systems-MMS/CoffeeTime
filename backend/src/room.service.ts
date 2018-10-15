@@ -53,12 +53,13 @@ export class RoomService {
         }
       }
       room.id = location;
-      room.name = location;
+      room.name = location.charAt(0).toUpperCase() + location.slice(1);
       room.type = location.startsWith('sitz') ? RoomType.AREA : RoomType.KITCHEN;
       room.status = fillings[0].filling > 0.75 ? RoomState.FULL : (fillings[0].filling > 0.5 ?  RoomState.SEMIFULL : RoomState.FREE);
       fillings.forEach(filling => {
         const index = room.history.findIndex(value => value.timestamp === filling.timestamp.getTime());
         if (index === -1){
+          // TODO: hier das filling in den Forecast integrieren
           room.history.push(new this.historyModel({occupancy: filling.filling, timestamp: filling.timestamp.getTime()}));
         }
       });

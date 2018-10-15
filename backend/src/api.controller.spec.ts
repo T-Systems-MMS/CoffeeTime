@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ApiController } from './api.controller';
 import { RoomService } from './room.service';
 
-
 describe('AppController', () => {
   let app: TestingModule;
 
