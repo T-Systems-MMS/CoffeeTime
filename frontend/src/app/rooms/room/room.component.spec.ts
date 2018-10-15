@@ -42,6 +42,7 @@ describe('RoomComponent', () => {
         fixture = TestBed.createComponent(RoomComponent);
         component = fixture.componentInstance;
         component.room = new Room('foobar');
+        component.room.forecast = [];
 
         fixture.detectChanges();
     });

@@ -99,7 +99,7 @@ export class ChartComponent implements OnInit, OnChanges, OnDestroy {
             throw new Error(`${this.type} is not a valid chart type`);
         }
 
-        this.chart = new charts[this.type](this.element, this.data, this.options, this.responsiveOptions);
+        this.chart = new charts[this.type](this.element, this.data, this.options, this.responsiveOptions || []);
         return this.chart;
     }
 }

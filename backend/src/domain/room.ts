@@ -9,12 +9,14 @@ export class Room {
     type: RoomType;
     forecast: Array<Forecast> = [];
 
-    constructor(id: string){
+    constructor(id: string) {
         this.id = id;
         this.name = 'Raum der Stille';
         this.status = RoomState.SEMIFULL;
         this.type = RoomType.AREA;
-        this.forecast.push(new Forecast());
+        for (let i = -(40 * 18000000); i < 10 * 18000000; i += 18000000) {
+            this.forecast.push(new Forecast(Date.now() + i));
+        }
     }
 
 }
