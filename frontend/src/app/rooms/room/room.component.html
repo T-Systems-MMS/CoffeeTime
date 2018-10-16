@@ -11,16 +11,16 @@
     <mat-card-subtitle class="room-title">{{room.status}}</mat-card-subtitle>
   </mat-card-header>
   <mat-card-content>
-    <app-chart [data]="data" type="Line" [options]="options" [responsiveOptions]="responsiveOptions"></app-chart>
+    <app-chart [data]="room.forecast" type="Line" [options]="options"></app-chart>
     <span class="push-label">Benachrichtigen</span>
     <div class="push-toogles">
       <div class="push-toggle">
-        <mat-slide-toggle [labelPosition]="'before'" [color]="color" [checked]="checked" [disabled]="disabled" (change)="toogleIfFreePush($event)">
+        <mat-slide-toggle [labelPosition]="'before'" (change)="toogleIfFreePush($event)">
           wenn frei
         </mat-slide-toggle>
       </div>
       <div>
-        <mat-slide-toggle [labelPosition]="'before'" [color]="color" [checked]="checked" [disabled]="disabled" (change)="toogleRecommendationsPush($event)">
+        <mat-slide-toggle [labelPosition]="'before'" (change)="toogleRecommendationsPush($event)">
           Empfehlungen
         </mat-slide-toggle>
       </div>
