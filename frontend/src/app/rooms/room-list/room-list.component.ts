@@ -17,7 +17,7 @@ const STATUS_MAP = {
 };
 
 const TIMER_DELAY = 5000; // 5 seconds delay
-const TIMER_INTERVAL = 1000;//60000; // 1 minute interval
+const TIMER_INTERVAL = 60000; // 1 minute interval
 
 @Component({
     selector: 'app-room-list',
