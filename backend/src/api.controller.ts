@@ -3,8 +3,8 @@ import { RoomService } from './room.service';
 import { Push } from './domain/push';
 import { PushSubscription } from './domain/pushsubscription';
 import { PushUnSubscription } from './domain/pushunsubscription';
-import { PushService } from 'push.service';
-import { RoomData } from 'domain/schema/roomdata.interface';
+import { PushService } from './push.service';
+import { RoomData } from './domain/schema/roomdata.interface';
 
 @Controller()
 export class ApiController {

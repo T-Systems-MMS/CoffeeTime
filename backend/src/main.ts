@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger } from '@nestjs/common';
 import { join } from 'path';
-import { NotFoundExceptionFilter } from 'notfound-exception.filter';
+import { NotFoundExceptionFilter } from './notfound-exception.filter';
 import * as compression from 'compression';
 
 function sslRedirect(environments = ['production'], status = 302) {

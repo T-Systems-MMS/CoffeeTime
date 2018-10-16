@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { AWSResponse } from 'domain/awsresponse';
+import { AWSResponse } from './domain/awsresponse';
 import * as request from 'request';
-import { Filling } from 'domain/filling';
-import { RoomService } from 'room.service';
+import { Filling } from './domain/filling';
+import { RoomService } from './room.service';
 
 @Injectable()
 export class AWSBeService {

@@ -37,14 +37,16 @@ export class RoomListComponent implements OnInit, OnDestroy {
 
     static mapForecastOrHistory(room) {
         const property = room.history ? 'history' : 'forecast';
-        room[property] = room[property].map(item => {
-            return { x: new Date(item.timestamp), y: Math.ceil(item.occupancy * 100) }
-        });
-        room[property] = {
-            series: [{
-                name: 'filling',
-                data: room[property]
-            }]
+        if (property) {
+            room[property] = room[property].map(item => {
+                return { x: new Date(item.timestamp), y: Math.ceil(item.occupancy * 100) }
+            });
+            room[property] = {
+                series: [{
+                    name: 'filling',
+                    data: room[property]
+                }]
+            };
         }
         return room;
     }

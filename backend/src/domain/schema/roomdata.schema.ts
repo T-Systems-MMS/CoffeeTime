@@ -20,6 +20,6 @@ export const RoomDataSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.String,
         required: true,
     },
-    forecasts: [ForecastSchema],
+    forecast: [ForecastSchema],
     history: [HistorySchema],
 }, {id: false});

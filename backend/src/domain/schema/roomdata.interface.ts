@@ -1,6 +1,6 @@
 import { Document } from 'mongoose';
-import { RoomState } from 'domain/roomstate.enum';
-import { RoomType } from 'domain/roomtype.enum';
+import { RoomState } from './../roomstate.enum';
+import { RoomType } from './../roomtype.enum';
 import { ForecastData } from './forecastdata.interface';
 import { HistoryData } from './historydata.interface';
 export interface RoomData extends Document {
@@ -8,6 +8,6 @@ export interface RoomData extends Document {
     name: string;
     status: RoomState;
     type: RoomType;
-    forecasts: ForecastData[];
+    forecast: ForecastData[];
     history: HistoryData[];
 }

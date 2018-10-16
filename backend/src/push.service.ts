@@ -1,11 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { PushData } from 'domain/schema/pushdata.interface';
 import { Model } from 'mongoose';
-import { Push } from 'domain/push';
-import { PushSubscription } from 'domain/pushsubscription';
-import { PushSubscriptionData } from 'domain/schema/pushsubscriptiondata.interface';
-import { Modelnames } from 'domain/schema/modelnames';
+import { PushData } from './domain/schema/pushdata.interface';
+import { Push } from './domain/push';
+import { PushSubscription } from './domain/pushsubscription';
+import { PushSubscriptionData } from './domain/schema/pushsubscriptiondata.interface';
+import { Modelnames } from './domain/schema/modelnames';
 
 @Injectable()
 export class PushService {

@@ -4,13 +4,13 @@ import { ApiController } from './api.controller';
 import { RoomService } from './room.service';
 import { ScheduleService } from 'schedule.service';
 import { AWSBeService } from 'awsbe.service';
-import { PushDataSchema } from 'domain/schema/pushdata.schema';
+import { PushDataSchema } from './domain/schema/pushdata.schema';
 import { PushService } from 'push.service';
-import { Modelnames } from 'domain/schema/modelnames';
-import { PushSubscriptionDataSchema } from 'domain/schema/pushsubscriptiondata.schema';
-import { RoomDataSchema } from 'domain/schema/roomdata.schema';
-import { ForecastSchema } from 'domain/schema/forecast.schema';
-import { HistorySchema } from 'domain/schema/history.schema';
+import { Modelnames } from './domain/schema/modelnames';
+import { PushSubscriptionDataSchema } from './domain/schema/pushsubscriptiondata.schema';
+import { RoomDataSchema } from './domain/schema/roomdata.schema';
+import { ForecastSchema } from './domain/schema/forecast.schema';
+import { HistorySchema } from './domain/schema/history.schema';
 
 @Module({
   imports: [

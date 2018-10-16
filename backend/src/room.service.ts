@@ -1,14 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Modelnames } from 'domain/schema/modelnames';
-import { RoomData } from 'domain/schema/roomdata.interface';
 import { Model } from 'mongoose';
-import { Filling } from 'domain/filling';
-import { RoomType } from 'domain/roomtype.enum';
-import { RoomState } from 'domain/roomstate.enum';
-import { ForecastData } from 'domain/schema/forecastdata.interface';
-import { HistoryData } from 'domain/schema/historydata.interface';
-import * as moment from 'moment';
+import moment from 'moment';
+import { Modelnames } from './domain/schema/modelnames';
+import { RoomData } from './domain/schema/roomdata.interface';
+import { Filling } from './domain/filling';
+import { RoomType } from './domain/roomtype.enum';
+import { RoomState } from './domain/roomstate.enum';
+import { ForecastData } from './domain/schema/forecastdata.interface';
+import { HistoryData } from './domain/schema/historydata.interface';
 
 @Injectable()
 export class RoomService {
@@ -23,16 +23,16 @@ export class RoomService {
 
   rooms(subscriptionAuth?: string): Promise<Array<RoomData>> {
     return this.roomModel
-      .find({}, {'_id' : 0, '__v': 0,  'history': 0, 'forecasts.numberOfValues': 0 })
+      .find({}, {'_id' : 0, '__v': 0,  'history': 0, 'forecast.numberOfValues': 0 })
       .populate({
-        path: 'forecasts',
+        path: 'forecast',
         select: '-_id',
       })
       .exec();
   }
   room(roomId: string){
     return this.roomModel
-    .findOne({id: roomId}, {_id : 0, __v: 0,  forecasts: 0 })
+    .findOne({id: roomId}, {_id : 0, __v: 0,  forecast: 0 })
       .populate({
         path: 'history',
         select: '-_id',
@@ -49,7 +49,7 @@ export class RoomService {
             i = i + 40;
           }
           const emptyForecast = new this.forecastModel({occupancy: 0, numberOfValues: 0, forecastFor: i});
-          room.forecasts.push(emptyForecast);
+          room.forecast.push(emptyForecast);
         }
       }
       room.id = location;
