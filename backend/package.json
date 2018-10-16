@@ -25,7 +25,6 @@
     "@nestjs/core": "^5.1.0",
     "@nestjs/mongoose": "^5.2.2",
     "compression": "^1.7.3",
-    "heroku-ssl-redirect": "0.0.4",
     "mongoose": "^5.3.2",
     "nest-schedule": "^0.4.1",
     "reflect-metadata": "^0.1.12",
