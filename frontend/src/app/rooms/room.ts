@@ -5,11 +5,13 @@ export class Room {
     public name: string;
     public averageOccupancy: number;
     public averageWaitingTime: number;
+    public forecast?: Array<any>;
+    public history?: Array<any>;
 
     constructor(
         public id: string,
     ) {
         this.favorite = false;
         this.status = 'empty';
-     }
+    }
 }
