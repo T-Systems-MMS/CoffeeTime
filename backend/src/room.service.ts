@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Room } from './domain/room';
+import { RoomType } from './domain/roomtype.enum';
 
 @Injectable()
 export class RoomService {
@@ -13,8 +14,10 @@ export class RoomService {
             history.push({ timestamp: now + i, occupancy: Math.random() });
         }
         return {
+            id: roomId,
             name: 'Raum der Stille',
-            history: history,
+            type: RoomType.AREA,
+            history,
             averageWaitingTime: 124,
             averageOccupancy: 0.475,
         };

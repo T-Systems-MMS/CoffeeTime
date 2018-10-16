@@ -13,10 +13,17 @@ describe('AppController', () => {
     }).compile();
   });
 
-  xdescribe('api', () => {
+  describe('api', () => {
     it('should return "two Empty Rooms"', () => {
       const apiController = app.get<ApiController>(ApiController);
-      expect(apiController.rooms([])).toEqual([new Room('123'), new Room('456')]);
+      const rooms = apiController.rooms([]);
+      delete rooms[0].forecast;
+      delete rooms[1].forecast;
+
+      const expectedRooms = [new Room('123'), new Room('456')];
+      delete expectedRooms[0].forecast;
+      delete expectedRooms[1].forecast;
+      expect(rooms).toEqual(expectedRooms);
     });
   });
 });
