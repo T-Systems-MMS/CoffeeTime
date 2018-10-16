@@ -18,6 +18,8 @@ import { PushService } from './push.service';
 import { ComponentModule } from 'src/components/component.module';
 import { AverageWaitingTimePipe } from './average-waiting-time.pipe';
 import { AverageOccupancyPipe } from './average-occupancy.pipe';
+import { HAMMER_GESTURE_CONFIG } from '@angular/platform-browser';
+import { HammerConfig } from '../hammer.config';
 
 @NgModule({
   declarations: [
@@ -41,7 +43,11 @@ import { AverageOccupancyPipe } from './average-occupancy.pipe';
     ComponentModule
   ],
   providers: [
-    RoomService, PushService
+    RoomService, PushService,
+    {
+        provide: HAMMER_GESTURE_CONFIG,
+        useClass: HammerConfig
+    }
   ]
 })
 export class RoomsModule { }
