@@ -1,4 +1,4 @@
-<mat-card *ngIf="room" class="room-card">
+<mat-card *ngIf="room" class="room-card" (swipeleft)="gotoRoomDetails()">
   <mat-card-header class="room-card-header">
     <div class="room-icon" mat-card-avatar>
       <mat-icon aria-label="Küche" *ngIf="room.type === 'kitchen'">local_cafe</mat-icon>
