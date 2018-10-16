@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, NgZone } from '@angular/core';
 import { RoomService } from '../room.service';
 import { LOCAL_STORAGE, StorageService } from 'ngx-webstorage-service';
 import { Subscription, timer, from, of } from 'rxjs';
@@ -17,7 +17,7 @@ const STATUS_MAP = {
 };
 
 const TIMER_DELAY = 5000; // 5 seconds delay
-const TIMER_INTERVAL = 3600000; // 1 minute interval
+const TIMER_INTERVAL = 1000;//60000; // 1 minute interval
 
 @Component({
     selector: 'app-room-list',
@@ -27,12 +27,12 @@ const TIMER_INTERVAL = 3600000; // 1 minute interval
 export class RoomListComponent implements OnInit, OnDestroy {
     rooms = [];
     favoriteRooms = [];
-    subscription: Subscription = null;
-    roomForecast: Subscription = null;
+    timerSubscription: Subscription = null;
 
     constructor(
         private service: RoomService,
-        @Inject(LOCAL_STORAGE) private storage: StorageService
+        @Inject(LOCAL_STORAGE) private storage: StorageService,
+        private ngZone: NgZone
     ) { }
 
     static mapForecastOrHistory(room) {
@@ -81,26 +81,33 @@ export class RoomListComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.fetchRooms();
-
-        this.roomForecast = timer(TIMER_DELAY, TIMER_INTERVAL)
-            .pipe(switchMap(() => this.service.getRooms()))
-            .pipe(switchMap(rooms => from(rooms)))
-            .pipe(map(room => RoomListComponent.mapForecastOrHistory(room)))
-            .subscribe((updatedRoom => {
-                [...this.rooms, ...this.favoriteRooms].forEach(room => {
-                    if (room.id === updatedRoom.id) {
-                        room.forecast = updatedRoom.forecast;
-                    }
+        // workaround: run timer outside of angular (https://github.com/angular/angular/issues/20970)
+        this.ngZone.runOutsideAngular(() => {
+            this.timerSubscription = timer(TIMER_DELAY, TIMER_INTERVAL)
+                .subscribe(() => {
+                    this.ngZone.run(() => {
+                        const roomSubscription = this.service.getRooms()
+                            .pipe(switchMap(rooms => from(rooms)))
+                            .pipe(map(room => RoomListComponent.mapForecastOrHistory(room)))
+                            .subscribe(
+                                updatedRoom => {
+                                    [...this.rooms, ...this.favoriteRooms].forEach(room => {
+                                        if (room.id === updatedRoom.id) {
+                                            room.forecast = updatedRoom.forecast;
+                                        }
+                                    });
+                                },
+                                error => { console.log(error); },
+                                () => roomSubscription.unsubscribe()
+                            );
+                    })
                 });
-            }));
+        });
     }
 
     ngOnDestroy() {
-        if (this.subscription) {
-            this.subscription.unsubscribe();
-        }
-        if (this.roomForecast) {
-            this.roomForecast.unsubscribe();
+        if (this.timerSubscription) {
+            this.timerSubscription.unsubscribe();
         }
     }
 
@@ -120,7 +127,7 @@ export class RoomListComponent implements OnInit, OnDestroy {
         const favorites = this.storage.get(STORGE_KEY) || [];
 
         // get data from backend
-        this.subscription = this.service.getRooms()
+        const roomSubscription = this.service.getRooms()
             .pipe(switchMap(rooms => {
                 this.favoriteRooms = [];
                 this.rooms = [];
@@ -129,7 +136,6 @@ export class RoomListComponent implements OnInit, OnDestroy {
             .pipe(map(room => RoomListComponent.mapForecastOrHistory(room)))
             .subscribe(
                 room => {
-
                     // set some attributes
                     room.favorite = favorites.indexOf(room.id) !== -1;
                     room.status = STATUS_MAP[room.status];
@@ -140,7 +146,8 @@ export class RoomListComponent implements OnInit, OnDestroy {
                         this.rooms.push(room);
                     }
                 },
-                error => { console.log(error); }
+                error => { console.log(error); },
+                () => roomSubscription.unsubscribe()
             );
     }
 
