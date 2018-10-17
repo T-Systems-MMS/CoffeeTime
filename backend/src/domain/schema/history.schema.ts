@@ -1,5 +1,13 @@
-import * as mongoose from 'mongoose';
-export const HistorySchema = new mongoose.Schema({
-    occupancy: mongoose.Schema.Types.Number,
-    timestamp: mongoose.Schema.Types.Number,
-}, { id: false});
+import { Document, Schema } from 'mongoose';
+
+export const HistorySchema = new Schema({
+    occupancy: Schema.Types.Number,
+    timestamp: Schema.Types.Number,
+}, { id: false });
+
+export interface HistoryData extends Document {
+    occupancy: number;
+    timestamp: number;
+}
+
+export const HistoryModelName = 'HistoryData';

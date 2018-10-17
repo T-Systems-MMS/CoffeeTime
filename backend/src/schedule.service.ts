@@ -8,13 +8,13 @@ defaults.retryInterval = 5000;
 
 @Injectable()
 export class ScheduleService extends NestSchedule {
-  constructor(private awsBeService: AWSBeService) {
-    super();
-  }
+    constructor(private awsBeService: AWSBeService) {
+        super();
+    }
 
-  @Interval(20000)
-  logMich(): void {
-    this.awsBeService.update();
+    @Interval(20000)
+    logMich(): void {
+        this.awsBeService.update();
 
-  }
+    }
 }

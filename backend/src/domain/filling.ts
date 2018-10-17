@@ -1,3 +1,3 @@
 export class Filling{
-    constructor(readonly timestamp: Date, readonly filling: number){}
+    constructor(readonly timestamp: number, readonly filling: number){}
 }

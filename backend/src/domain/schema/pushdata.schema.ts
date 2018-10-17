@@ -1,19 +1,28 @@
-import * as mongoose from 'mongoose';
-import { Modelnames } from './modelnames';
+import { Document, Schema } from 'mongoose';
+import { PushSubscriptionModelName, PushSubscriptionData } from './pushsubscriptiondata.schema';
 
-export const PushDataSchema = new mongoose.Schema({
-    endpoint:  {
-        type: mongoose.Schema.Types.String,
+export const PushDataSchema = new Schema({
+    endpoint: {
+        type: Schema.Types.String,
         required: true,
     },
     auth: {
-        type: mongoose.Schema.Types.String,
+        type: Schema.Types.String,
         unique: true,
         required: true,
     },
     p256dh: {
-        type: mongoose.Schema.Types.String,
+        type: Schema.Types.String,
         required: true,
     },
-    subscriptions: [{type: mongoose.Schema.Types.ObjectId, ref: Modelnames.PUSH_SUBSCRIPTION_DATA}],
+    subscriptions: [{ type: Schema.Types.ObjectId, ref: PushSubscriptionModelName }],
 });
+
+export interface PushData extends Document {
+    endpoint: string;
+    auth: string;
+    p256dh: string;
+    subscriptions: PushSubscriptionData[];
+}
+
+export const PushModelName = 'PushData';

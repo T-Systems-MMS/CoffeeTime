@@ -1,23 +1,23 @@
-import * as mongoose from 'mongoose';
+import { Document, Schema } from 'mongoose';
 import * as moment from 'moment';
-export const ForecastSchema = new mongoose.Schema({
-    occupancy: mongoose.Schema.Types.Number,
-    numberOfValues: mongoose.Schema.Types.Number,
-    forecastFor: mongoose.Schema.Types.Number,
-}, { id: false, toJSON: { virtuals: true }});
+
+export const ForecastSchema = new Schema({
+    occupancyValues: [Schema.Types.Number],
+    occupancy: Schema.Types.Number,
+    offset: Schema.Types.Number,
+}, { id: false, toJSON: { virtuals: true } });
 
 ForecastSchema.virtual('timestamp').get(function() {
-    const now = moment().locale('de');
-    const nowFor = now.hours() * 100 + now.minutes();
-    let dayOffset = 0;
-    if (nowFor > this.forecastFor){
-        dayOffset++;
-    }
-
-    return now.hours(Math.trunc(this.forecastFor / 100))
-    .minutes(this.forecastFor % 60)
-    .seconds(0)
-    .milliseconds(0)
-    .add(dayOffset, 'days')
-    .utc();
+    const startOfDay = moment().utc().startOf('day').valueOf();
+    return this.offset + startOfDay;
 });
+
+export interface ForecastData extends Document {
+    occupancy: number;
+    occupancyValues: number[];
+    // offset from 00:00:00 in milliseconds
+    offset: number;
+    timestamp?: number;
+}
+
+export const ForecastModelName = 'ForecastData';
