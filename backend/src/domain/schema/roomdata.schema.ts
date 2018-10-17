@@ -1,6 +1,6 @@
 import { Document, Schema } from 'mongoose';
-import { ForecastSchema, ForecastData } from './forecast.schema';
-import { HistorySchema, HistoryData } from './history.schema';
+import { ForecastData, ForecastModelName } from './forecast.schema';
+import { HistoryData, HistoryModelName } from './history.schema';
 import { RoomType } from './../roomtype.enum';
 import { RoomState } from './../roomstate.enum';
 
@@ -22,8 +22,8 @@ export const RoomDataSchema = new Schema({
         type: Schema.Types.String,
         required: true,
     },
-    forecast: [ForecastSchema],
-    history: [HistorySchema],
+    forecast: [{ type: Schema.Types.ObjectId, ref: ForecastModelName }],
+    history: [{ type: Schema.Types.ObjectId, ref: HistoryModelName }],
 }, { id: false });
 
 export interface RoomData extends Document {

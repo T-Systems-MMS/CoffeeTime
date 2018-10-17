@@ -6,7 +6,7 @@ defaults.enable = true;
 defaults.maxRetry = -1;
 defaults.retryInterval = 5000;
 
-const INTERVAL = 10000; // 15 * 60 * 1000;
+const INTERVAL = 15 * 60 * 1000;
 
 @Injectable()
 export class ScheduleService extends NestSchedule {
