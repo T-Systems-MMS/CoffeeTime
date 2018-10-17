@@ -18,6 +18,7 @@ const STATUS_MAP = {
 
 const TIMER_DELAY = 5000; // 5 seconds delay
 const TIMER_INTERVAL = 60000; // 1 minute interval
+const HOUR_MILLIS = 60 * 60 * 1000;
 
 @Component({
     selector: 'app-room-list',
@@ -35,20 +36,29 @@ export class RoomListComponent implements OnInit, OnDestroy {
         private ngZone: NgZone
     ) { }
 
-    static mapForecastOrHistory(room) {
-        const property = room.history ? 'history' : 'forecast';
-        if (property) {
-            room[property] = room[property].map(item => {
-                return { x: new Date(item.timestamp), y: Math.ceil(item.occupancy * 100) }
-            });
-            room[property] = {
-                series: [{
-                    name: 'filling',
-                    data: room[property]
-                }]
-            };
+    static mapForecastOrHistory(room, concat = false) {
+        ['history', 'forecast'].forEach((property) => {
+            if (room[property]) {
+                room[property] = room[property].map(item => {
+                    return { x: new Date(item.timestamp), y: Math.ceil(item.occupancy * 100) };
+                });
+                room[property] = {
+                    series: [{
+                        name: 'filling',
+                        data: room[property]
+                    }]
+                };
+            }
+        });
+        if (concat && room.forecast && room.history) {
+            const forecast = room.forecast.series[0].data.length > 0 ? room.forecast.series[0].data : this.getFallBackForecast();
+            room.forecast.series[0].data = room.history.series[0].data.concat(forecast);
         }
         return room;
+    }
+
+    private static getFallBackForecast() {
+        return [{ y: 0, x: new Date(Date.now() + HOUR_MILLIS) }];
     }
 
     static getChartOptions(withNow = false) {
@@ -56,7 +66,7 @@ export class RoomListComponent implements OnInit, OnDestroy {
             thresholdPlugin({ thresholds: [15, 60] })
         ];
         if (withNow) {
-            plugins.push(verticalLinePlugin({ label: 'jetzt', position: Date.now(), className: 'ct-now' }))
+            plugins.push(verticalLinePlugin({ label: 'jetzt', position: Date.now(), className: 'ct-now' }));
         }
         return {
             height: 100,
@@ -78,7 +88,7 @@ export class RoomListComponent implements OnInit, OnDestroy {
             showPoint: false,
             showArea: true,
             plugins: plugins
-        }
+        };
     }
 
     ngOnInit() {
@@ -90,7 +100,7 @@ export class RoomListComponent implements OnInit, OnDestroy {
                     this.ngZone.run(() => {
                         const roomSubscription = this.service.getRooms()
                             .pipe(switchMap(rooms => from(rooms)))
-                            .pipe(map(room => RoomListComponent.mapForecastOrHistory(room)))
+                            .pipe(map(room => RoomListComponent.mapForecastOrHistory(room, true)))
                             .subscribe(
                                 updatedRoom => {
                                     [...this.rooms, ...this.favoriteRooms].forEach(room => {
@@ -102,7 +112,7 @@ export class RoomListComponent implements OnInit, OnDestroy {
                                 error => { console.log(error); },
                                 () => roomSubscription.unsubscribe()
                             );
-                    })
+                    });
                 });
         });
     }
@@ -135,7 +145,7 @@ export class RoomListComponent implements OnInit, OnDestroy {
                 this.rooms = [];
                 return from(rooms);
             }))
-            .pipe(map(room => RoomListComponent.mapForecastOrHistory(room)))
+            .pipe(map(room => RoomListComponent.mapForecastOrHistory(room, true)))
             .subscribe(
                 room => {
                     // set some attributes
@@ -152,5 +162,4 @@ export class RoomListComponent implements OnInit, OnDestroy {
                 () => roomSubscription.unsubscribe()
             );
     }
-
 }

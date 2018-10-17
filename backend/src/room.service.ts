@@ -36,7 +36,6 @@ export class RoomService {
         const from = moment.utc().subtract(2, 'hours').valueOf();
         const now = moment.utc().valueOf() - moment.utc().startOf('day').valueOf();
         const to = now + HOUR_MILLIS;
-        Logger.log(`${now} -> ${to}`);
         return this.roomModel
             .find({}, { _id: 0, __v: 0 })
             .populate({
