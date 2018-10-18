@@ -8,8 +8,8 @@ import { PushDataSchema, PushModelName } from './domain/schema/pushdata.schema';
 import { PushService } from './push.service';
 import { PushSubscriptionDataSchema, PushSubscriptionModelName } from './domain/schema/pushsubscriptiondata.schema';
 import { RoomDataSchema, RoomModelName } from './domain/schema/roomdata.schema';
-import { HistoryModelName, HistorySchema } from 'domain/schema/history.schema';
-import { ForecastModelName, ForecastSchema } from 'domain/schema/forecast.schema';
+import { HistoryModelName, HistorySchema } from './domain/schema/history.schema';
+import { ForecastModelName, ForecastSchema } from './domain/schema/forecast.schema';
 
 @Module({
     imports: [

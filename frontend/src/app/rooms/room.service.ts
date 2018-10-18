@@ -31,7 +31,8 @@ export class RoomService {
     this.push.getAuthToken().then((auth_token) => {
       this.http.put(`${ROOM_URL}/${room.id}/push`,
         {
-          [type]: active
+          type: type,
+          value: active
         }, {
           headers: new HttpHeaders({
             'PUSH_SUBSCRIPTION_AUTH': auth_token

@@ -2,11 +2,11 @@ import { Document, Schema } from 'mongoose';
 
 export const PushSubscriptionDataSchema = new Schema({
     roomId: Schema.Types.String,
-    iffree: {
+    ifFree: {
         type: Schema.Types.Boolean,
         default: false,
     },
-    recommendations: {
+    recommendations:  {
         type: Schema.Types.Boolean,
         default: false,
     },
@@ -14,7 +14,7 @@ export const PushSubscriptionDataSchema = new Schema({
 
 export interface PushSubscriptionData extends Document {
     roomId: string;
-    iffree: boolean;
+    ifFree: boolean;
     recommendations: boolean;
 }
 
