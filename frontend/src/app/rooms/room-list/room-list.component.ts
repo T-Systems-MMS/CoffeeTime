@@ -58,15 +58,15 @@ export class RoomListComponent implements OnInit, OnDestroy {
     }
 
     private static getFallBackForecast() {
-        return [{ y: 0, x: new Date(Date.now() + HOUR_MILLIS) }];
+        return [{ y: 0, x: new Date(Date.now()) }, { y: 0, x: new Date(Date.now() + HOUR_MILLIS) }];
     }
 
-    static getChartOptions(withNow = false) {
+    static getChartOptions(withNow = false, id = '') {
         const plugins: Function[] = [
-            thresholdPlugin({ thresholds: [15, 60] })
+            thresholdPlugin({ thresholds: [15, 60], id })
         ];
         if (withNow) {
-            plugins.push(verticalLinePlugin({ label: 'jetzt', position: Date.now(), className: 'ct-now' }));
+            plugins.push(verticalLinePlugin({ label: 'jetzt', position: 'now', className: 'ct-now' }));
         }
         return {
             height: 100,

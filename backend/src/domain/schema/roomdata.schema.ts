@@ -24,6 +24,12 @@ export const RoomDataSchema = new Schema({
     },
     forecast: [{ type: Schema.Types.ObjectId, ref: ForecastModelName }],
     history: [{ type: Schema.Types.ObjectId, ref: HistoryModelName }],
+    averageWaitingTime: {
+        type: Schema.Types.Number,
+    },
+    averageOccupancy: {
+        type: Schema.Types.Number,
+    },
 }, { id: false });
 
 export interface RoomData extends Document {
@@ -33,6 +39,8 @@ export interface RoomData extends Document {
     type: RoomType;
     forecast: ForecastData[];
     history: HistoryData[];
+    averageWaitingTime: number;
+    averageOccupancy: number;
 }
 
 export const RoomModelName = 'RoomData';

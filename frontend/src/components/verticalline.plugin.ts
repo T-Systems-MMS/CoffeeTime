@@ -1,11 +1,11 @@
-import { Line, IChartOptions, IChartistBase, IChartistSvg, IChartistLineChart } from "chartist";
+import { Line, IChartOptions, IChartistBase, IChartistSvg, IChartistLineChart } from 'chartist';
 import { defaults } from 'lodash';
 
 /**
  * Options for vertical line plugin.
  */
 export interface VerticalLinePluginOptions {
-    position: Date | number;
+    position: Date | number | string;
     className?: string;
     label?: string;
     lineOffset?: number;
@@ -27,20 +27,20 @@ export function verticalLinePlugin(options: VerticalLinePluginOptions): Function
         labelOffset: 10
     }) as VerticalLinePluginOptions;
 
-    return function (chart: IChartistBase<IChartOptions>) {
+    return function(chart: IChartistBase<IChartOptions>) {
         if (!(chart instanceof Line)) {
             return;
         }
 
         // extract position and define vars
-        let position: number = options.position instanceof Date ? options.position.getTime() : options.position;
+        const position: number | string = options.position instanceof Date ? options.position.getTime() : options.position;
         let xCoord: number;
 
 
-        chart.on('created', function (data) {
-            // define classes 
+        chart.on('created', function(data) {
+            // define classes
             const labelClassName = options.className + '-label';
-            xCoord = data.axisX.projectValue(position) + data.chartRect.x1;
+            xCoord = data.axisX.projectValue(position === 'now' ? Date.now() : position) + data.chartRect.x1;
 
             // add line
             (chart as ExtendedIChartistBase).svg.elem('line', {
@@ -54,5 +54,5 @@ export function verticalLinePlugin(options: VerticalLinePluginOptions): Function
             const attr = { x: xCoord + options.labelPadding, y: options.labelOffset };
             (chart as ExtendedIChartistBase).svg.elem('text', attr, labelClassName).text(options.label);
         });
-    }
+    };
 }

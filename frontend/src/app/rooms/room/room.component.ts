@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 
 import { Room } from '../room';
 import { RoomListComponent } from '../room-list/room-list.component';
+import { IChartOptions } from 'chartist';
 
 const STORGE_KEY = 'ct_favorites';
 @Component({
@@ -15,7 +16,7 @@ const STORGE_KEY = 'ct_favorites';
 })
 export class RoomComponent implements OnInit {
 
-    options = RoomListComponent.getChartOptions(true);
+    options: IChartOptions;
 
     @Input()
     room: Room;
@@ -26,7 +27,9 @@ export class RoomComponent implements OnInit {
         @Inject(LOCAL_STORAGE) private storage: StorageService
     ) { }
 
-    ngOnInit() { }
+    ngOnInit() {
+        this.options = RoomListComponent.getChartOptions(true, this.room.id);
+     }
 
     toogleFavorite(): void {
         this.room.favorite = !this.room.favorite;

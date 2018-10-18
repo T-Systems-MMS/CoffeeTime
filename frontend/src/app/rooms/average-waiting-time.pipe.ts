@@ -10,8 +10,8 @@ export class AverageWaitingTimePipe implements PipeTransform {
       return 'n/a';
     }
 
-    const minutes = Math.floor(value / 60);
-    const seconds = value - minutes * 60;
+    const minutes = Math.floor(value / 60000);
+    const seconds = value - minutes * 60000;
     return `${minutes} min ${seconds} s`;
   }
 }

@@ -115,7 +115,7 @@ export class RoomService {
             Logger.log(`${room.id} offset: ${offset} time: ${moment.utc(timestamp).format()} next: ${moment.utc(nextTimestamp).format()}`);
 
             for (const filling of fillings) {
-                // time slot over?
+                // time slot over? -> ATTENTION: the last slot is ignored, because it is processed next time with all values present
                 if (filling.timestamp >= nextTimestamp) {
                     // at least one value is needed and timestamp should not already processed
                     if (timestamp > lastTimestamp && count > 0) {
@@ -172,7 +172,28 @@ export class RoomService {
             room.forecast = processedForecast.map(value => value._id);
             // filter old elements
             const lowerBound = moment().utc().subtract(7, 'days').valueOf();
-            room.history = room.history.filter(value => value.timestamp > lowerBound).map(value => value._id);
+            let occupanySum = 0;
+            let timeSum = 0;
+            let lastOccupancy = 0;
+            let timeBlockCount = 0;
+            room.history = room.history.filter(value => value.timestamp > lowerBound).map(value => {
+                occupanySum += value.occupancy;
+                if (value.occupancy > RoomFilling.SEMIFULL) {
+                    timeSum += INTERVAL / (value.occupancy > RoomFilling.FULL ? 1 : 2);
+                }
+                if (value.occupancy < RoomFilling.SEMIFULL && lastOccupancy > RoomFilling.SEMIFULL) {
+                    timeBlockCount++;
+                }
+                lastOccupancy = value.occupancy;
+                return value._id;
+            });
+
+            if (room.history.length > 0) {
+                room.averageOccupancy = occupanySum / room.history.length;
+            }
+            if (timeBlockCount > 0) {
+                room.averageWaitingTime = Math.round((timeSum / timeBlockCount) * MIN_MILLISECOND_FACTOR);
+            }
 
             return room;
         } catch (e) {

@@ -10,7 +10,7 @@ export class AverageOccupancyPipe implements PipeTransform {
       return 'n/a';
     }
 
-    const percent = value * 100;
+    const percent = Math.round(value * 100);
     return percent + ' %';
   }
 
