@@ -74,7 +74,7 @@ export class RoomListComponent implements OnInit, OnDestroy {
             axisX: {
                 type: FixedScaleAxis,
                 divisor: 3,
-                labelInterpolationFnc: (value: number) => formatDate(new Date(value), 'dd:mm', 'EN')
+                labelInterpolationFnc: (value: number) => formatDate(new Date(value), 'HH:mm', 'EN')
             },
             axisY: {
                 type: FixedScaleAxis,
