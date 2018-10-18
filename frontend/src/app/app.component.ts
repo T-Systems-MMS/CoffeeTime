@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
+import { RouterOutlet } from '@angular/router';
 import { slideInAnimation } from './animations';
+import localDe from '@angular/common/locales/de';
+import { registerLocaleData } from '@angular/common';
 
 @Component({
     selector: 'app-root',
@@ -11,15 +13,11 @@ import { slideInAnimation } from './animations';
 
 export class AppComponent implements OnInit {
 
-    constructor(private router: Router) { }
-
-    ngOnInit() {
-        this.router.events.subscribe((event) => {
-            if (event instanceof NavigationEnd) {
-                window.scrollTo(0, 0);
-            }
-        });
+    constructor() {
+        registerLocaleData(localDe, 'de');
     }
+
+    ngOnInit() { }
 
     getAnimationData(outlet: RouterOutlet) {
         return outlet && outlet.activatedRouteData && outlet.activatedRouteData['animation'];

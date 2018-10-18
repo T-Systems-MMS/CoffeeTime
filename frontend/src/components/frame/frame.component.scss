@@ -11,11 +11,4 @@ mat-toolbar {
 
 .content {
   height: 100%;
-  margin-top: 64px;
-}
-
-@media (max-width: 599px) {
-  .content {
-    margin-top: 56px;
-  }
 }

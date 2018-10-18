@@ -9,6 +9,10 @@ import { RoomListComponent } from '../room-list/room-list.component';
 import { IChartOptions } from 'chartist';
 
 const STORGE_KEY = 'ct_favorites';
+const SUFFIX_MAP = {
+    area: 'Bereich',
+    kitchen: 'Küche',
+};
 @Component({
     selector: 'app-room',
     templateUrl: './room.component.html',
@@ -17,6 +21,7 @@ const STORGE_KEY = 'ct_favorites';
 export class RoomComponent implements OnInit {
 
     options: IChartOptions;
+    suffix: string;
 
     @Input()
     room: Room;
@@ -29,7 +34,8 @@ export class RoomComponent implements OnInit {
 
     ngOnInit() {
         this.options = RoomListComponent.getChartOptions(true, this.room.id);
-     }
+        this.suffix = SUFFIX_MAP[this.room.type];
+    }
 
     toogleFavorite(): void {
         this.room.favorite = !this.room.favorite;

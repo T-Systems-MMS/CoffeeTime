@@ -26,6 +26,8 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
         private service: RoomService
     ) {
         this.room = null;
+        this.options.axisX.divisor = 5;
+        this.options.axisX.labelInterpolationFnc = (value: number) => formatDate(new Date(value), 'EE HH:mm', 'DE');
     }
 
     ngOnInit(): void {

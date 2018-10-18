@@ -69,12 +69,12 @@ export class RoomListComponent implements OnInit, OnDestroy {
             plugins.push(verticalLinePlugin({ label: 'jetzt', position: 'now', className: 'ct-now' }));
         }
         return {
-            height: 100,
+            height: 130,
             fullWidth: true,
             axisX: {
                 type: FixedScaleAxis,
-                divisor: 3,
-                labelInterpolationFnc: (value: number) => formatDate(new Date(value), 'HH:mm', 'EN')
+                divisor: 4,
+                labelInterpolationFnc: (value: number) => formatDate(new Date(value), 'HH:mm', 'DE')
             },
             axisY: {
                 type: FixedScaleAxis,
@@ -106,6 +106,7 @@ export class RoomListComponent implements OnInit, OnDestroy {
                                     [...this.rooms, ...this.favoriteRooms].forEach(room => {
                                         if (room.id === updatedRoom.id) {
                                             room.forecast = updatedRoom.forecast;
+                                            room.status = STATUS_MAP[updatedRoom.status];
                                         }
                                     });
                                 },

@@ -14,12 +14,13 @@ enum RoomFilling {
     FULL = 0.75,
 }
 
-const INTERVAL = 2; // aggregation in minutes
+const INTERVAL = 1; // aggregation in minutes
 const MIN_MILLISECOND_FACTOR = 60000;
 const HOUR_MILLIS = 60 * 60 * 1000;
 const MILLI_INTERVAL = INTERVAL * MIN_MILLISECOND_FACTOR;
 const MAX_FORECAST_VALUES = 4;
 const DAY_MILLIS = 24 * 60 * 60 * 1000;
+const WEIGHT_FACTOR = 2;
 
 @Injectable()
 export class RoomService {
@@ -75,14 +76,9 @@ export class RoomService {
             // sort to have correct order
             fillings = fillings.sort((p, n) => p.timestamp - n.timestamp);
 
-            // update status
-            const firstFilling = fillings[0].filling;
-            room.status = firstFilling > RoomFilling.FULL
-                ? RoomState.FULL
-                : (firstFilling > RoomFilling.SEMIFULL ? RoomState.SEMIFULL : RoomState.FREE);
-
             // process history and forecast
             room = await this.processRoom(room, fillings);
+
             // save room
             return room.save();
         } catch (e) {
@@ -129,26 +125,9 @@ export class RoomService {
                         await newHistory.save();
                         room.history.push(newHistory);
 
-                        // check if forecast for offset exists, otherwise we have to create a new one
-                        if (!forecastMap.has(offset + 'ms')) {
-                            const newForcast = new this.forecastModel({ _id: new Types.ObjectId(), occupancy, occupancyValues: [], offset });
-                            forecastMap.set(offset + 'ms', newForcast);
-                        }
-                        // hold only a few values
-                        const forecast = forecastMap.get(offset + 'ms');
-                        if (forecast.occupancyValues.length >= MAX_FORECAST_VALUES) {
-                            forecast.occupancyValues.shift();
-                        }
-                        // add new value
-                        const newLength = forecast.occupancyValues.push(occupancy);
-                        // calc new forecast value
-                        const newOccupancy = forecast.occupancyValues.reduce((valueSum, value) => valueSum + value, 0) / newLength;
-
-                        Logger.log(`forecast ${room.id} offset: ${offset} occupancy: ${forecast.occupancy} -> ${newOccupancy}`);
-
-                        // set new one
-                        forecast.occupancy = newOccupancy;
-                        await forecast.save();
+                        // caculate forecast occupancy
+                        const occupancies = await this.calculateForecastOccupancy(forecastMap, occupancy, offset);
+                        Logger.log(`forecast ${room.id} offset: ${offset} occupancy: ${occupancies[0]} -> ${occupancies[1]}`);
                     }
 
                     // go to next time slot
@@ -162,42 +141,95 @@ export class RoomService {
                 }
 
                 // sum up values
-                sum += filling.filling;
-                count++;
+                if (filling.filling > RoomFilling.SEMIFULL) {
+                    sum += filling.filling * WEIGHT_FACTOR;
+                    count += 2;
+                } else {
+                    sum += filling.filling;
+                    count++;
+                }
             }
 
             // set forecast
             const processedForecast = Array.from(forecastMap.values());
             processedForecast.sort((p, n) => p.offset - n.offset);
             room.forecast = processedForecast.map(value => value._id);
-            // filter old elements
-            const lowerBound = moment().utc().subtract(7, 'days').valueOf();
-            let occupanySum = 0;
-            let timeSum = 0;
-            let lastOccupancy = 0;
-            let timeBlockCount = 0;
-            room.history = room.history.filter(value => value.timestamp > lowerBound).map(value => {
-                occupanySum += value.occupancy;
-                if (value.occupancy > RoomFilling.SEMIFULL) {
-                    timeSum += INTERVAL / (value.occupancy > RoomFilling.FULL ? 1 : 2);
-                }
-                if (value.occupancy < RoomFilling.SEMIFULL && lastOccupancy > RoomFilling.SEMIFULL) {
-                    timeBlockCount++;
-                }
-                lastOccupancy = value.occupancy;
-                return value._id;
-            });
 
-            if (room.history.length > 0) {
-                room.averageOccupancy = occupanySum / room.history.length;
-            }
-            if (timeBlockCount > 0) {
-                room.averageWaitingTime = Math.round((timeSum / timeBlockCount) * MIN_MILLISECOND_FACTOR);
-            }
+            // update status
+            room.status = this.getStatus(room.history);
+
+            // update history and set average values
+            const result = this.filterHistoryAndCalcAverage(room.history);
+            room.history = result.history;
+            room.averageWaitingTime = result.averageWaitingTime;
+            room.averageOccupancy = result.averageOccupancy;
 
             return room;
         } catch (e) {
             Logger.error(e);
         }
+    }
+
+    private async calculateForecastOccupancy(forecastMap: Map<string, any>, occupancy: number, offset: number): Promise<number[]> {
+        // check if forecast for offset exists, otherwise we have to create a new one
+        if (!forecastMap.has(offset + 'ms')) {
+            const newForcast = new this.forecastModel({ _id: new Types.ObjectId(), occupancy, occupancyValues: [], offset });
+            forecastMap.set(offset + 'ms', newForcast);
+        }
+        // hold only a few values
+        const forecast = forecastMap.get(offset + 'ms');
+        if (forecast.occupancyValues.length >= MAX_FORECAST_VALUES) {
+            forecast.occupancyValues.shift();
+        }
+        // add new value
+        const newLength = forecast.occupancyValues.push(occupancy);
+        // calc new forecast value
+        const oldOccupancy = forecast.occupancy;
+        const newOccupancy = forecast.occupancyValues.reduce((valueSum, value) => valueSum + value, 0) / newLength;
+
+        // set new one
+        forecast.occupancy = newOccupancy;
+        await forecast.save();
+
+        return [oldOccupancy, newOccupancy];
+    }
+
+    private getStatus(history: HistoryData[]) {
+        // update status
+        if (history.length > 0) {
+            const filling = history[history.length - 1].occupancy;
+            return filling > RoomFilling.FULL
+                ? RoomState.FULL
+                : (filling > RoomFilling.SEMIFULL ? RoomState.SEMIFULL : RoomState.FREE);
+        }
+        return RoomState.FREE;
+    }
+
+    private filterHistoryAndCalcAverage(history: any[]): { history: any[], averageWaitingTime: number, averageOccupancy: number } {
+        const lowerBound = moment().utc().subtract(7, 'days').valueOf();
+        let occupanySum = 0;
+        let timeSum = 0;
+        let lastOccupancy = 0;
+        let timeBlockCount = 0;
+        const result = { history: [], averageWaitingTime: null, averageOccupancy: null };
+        result.history = history.filter(value => value.timestamp > lowerBound).map(value => {
+            occupanySum += value.occupancy;
+            if (value.occupancy > RoomFilling.SEMIFULL) {
+                timeSum += INTERVAL / (value.occupancy > RoomFilling.FULL ? 1 : 2);
+            }
+            if (value.occupancy < RoomFilling.SEMIFULL && lastOccupancy > RoomFilling.SEMIFULL) {
+                timeBlockCount++;
+            }
+            lastOccupancy = value.occupancy;
+            return value._id;
+        });
+
+        if (history.length > 0) {
+            result.averageOccupancy = occupanySum / history.length;
+        }
+        if (timeBlockCount > 0) {
+            result.averageWaitingTime = Math.round((timeSum / timeBlockCount) * MIN_MILLISECOND_FACTOR);
+        }
+        return result;
     }
 }

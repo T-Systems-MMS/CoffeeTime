@@ -6,7 +6,7 @@
       <mat-icon aria-label="Sitzecke" *ngIf="room.type !== 'area' && room.type !== 'kitchen'">trip_origin</mat-icon>
     </div>
     <mat-card-title class="room-title">
-      {{room.name}}
+      {{room.name}} ({{suffix}})
     </mat-card-title>
     <mat-card-subtitle class="room-title">{{room.status}}</mat-card-subtitle>
   </mat-card-header>
