@@ -8,9 +8,9 @@ import { RoomModelName, RoomData } from './domain/schema/roomdata.schema';
 import { HistoryModelName, HistoryData } from './domain/schema/history.schema';
 import { ForecastData, ForecastModelName } from './domain/schema/forecast.schema';
 import { Filling } from './domain/filling';
-import { PushService } from 'push.service';
-import { PushSubscriptionModelName, PushSubscriptionData } from 'domain/schema/pushsubscriptiondata.schema';
-import { PushModelName, PushData } from 'domain/schema/pushdata.schema';
+import { PushService } from './push.service';
+import { PushSubscriptionModelName, PushSubscriptionData } from './domain/schema/pushsubscriptiondata.schema';
+import { PushModelName, PushData } from './domain/schema/pushdata.schema';
 
 enum RoomFilling {
     SEMIFULL = 0.20,

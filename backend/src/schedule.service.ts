@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Interval, NestSchedule, defaults } from 'nest-schedule';
 import { AWSBeService } from './awsbe.service';
-import { PushService } from 'push.service';
-import { RoomService } from 'room.service';
+import { PushService } from './push.service';
+import { RoomService } from './room.service';
 
 defaults.enable = true;
 defaults.maxRetry = -1;

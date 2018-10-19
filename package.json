@@ -10,7 +10,7 @@
     "test-be": "cd backend && npm test",
     "install-fe": "cd frontend && npm install",
     "install-be": "cd backend && npm install",
-    "start": "cd backend && npm start"
+    "start": "cd backend && npm start:prod"
   },
   "repository": {
     "type": "git",
