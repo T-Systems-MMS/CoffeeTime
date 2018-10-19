@@ -3,7 +3,7 @@ import { SwPush } from '@angular/service-worker';
 import { LOCAL_STORAGE, StorageService } from 'ngx-webstorage-service';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 
-const STORAGE_KEY = 'ct_push_auth_token';
+export const STORAGE_KEY = 'ct_push_auth_token';
 
 @Injectable({
   providedIn: 'root'

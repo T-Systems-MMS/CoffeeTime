@@ -8,6 +8,9 @@ import { RoomModelName, RoomData } from './domain/schema/roomdata.schema';
 import { HistoryModelName, HistoryData } from './domain/schema/history.schema';
 import { ForecastData, ForecastModelName } from './domain/schema/forecast.schema';
 import { Filling } from './domain/filling';
+import { PushService } from 'push.service';
+import { PushSubscriptionModelName, PushSubscriptionData } from 'domain/schema/pushsubscriptiondata.schema';
+import { PushModelName, PushData } from 'domain/schema/pushdata.schema';
 
 enum RoomFilling {
     SEMIFULL = 0.20,
@@ -21,6 +24,9 @@ const MILLI_INTERVAL = INTERVAL * MIN_MILLISECOND_FACTOR;
 const MAX_FORECAST_VALUES = 4;
 const DAY_MILLIS = 24 * 60 * 60 * 1000;
 const WEIGHT_FACTOR = 2;
+const FREE_TIME = 10; // minutes
+const RECOMMENDATION_FORCAST = FREE_TIME + 10; // minutes
+const FREE_INTERVALS = 3;
 
 @Injectable()
 export class RoomService {
@@ -31,26 +37,154 @@ export class RoomService {
         private readonly historyModel: Model<HistoryData>,
         @InjectModel(ForecastModelName)
         private readonly forecastModel: Model<ForecastData>,
+        @InjectModel(PushSubscriptionModelName)
+        private readonly pushSubscriptionModel: Model<PushSubscriptionData>,
+        @InjectModel(PushModelName)
+        private readonly pushModel: Model<PushData>,
+        private pushService: PushService,
     ) { }
 
-    rooms(subscriptionAuth?: string): Promise<Array<RoomData>> {
+    rooms(subscriptionAuth = ''): Promise<RoomData[]> {
+        const startOfDay = moment.utc().startOf('day').valueOf();
         const from = moment.utc().subtract(2, 'hours').valueOf();
-        const now = moment.utc().valueOf() - moment.utc().startOf('day').valueOf();
+        const now = moment.utc().valueOf() - startOfDay;
         const to = now + HOUR_MILLIS;
+        /* const rooms = this.roomModel
+             .find({}, { _id: 0, __v: 0 })
+             .populate({
+                 path: 'forecast',
+                 match: { offset: { $gt: now, $lt: to } },
+                 select: '-_id -occupancyValues',
+             })
+             .populate({
+                 path: 'history',
+                 match: { timestamp: { $gt: from } },
+                 select: '-_id',
+             })
+             .exec();*/
+
         return this.roomModel
-            .find({}, { _id: 0, __v: 0 })
-            .populate({
-                path: 'forecast',
-                match: { offset: { $gt: now, $lt: to } },
-                select: '-_id -occupancyValues',
-            })
-            .populate({
-                path: 'history',
-                match: { timestamp: { $gt: from } },
-                select: '-_id',
-            })
+            .aggregate([
+                {
+                    $lookup: {
+                        from: this.forecastModel.collection.name,
+                        let: { forecast_ids: '$forecast' },
+                        pipeline: [
+                            {
+                                $match: {
+                                    $expr: { $and: [{ $in: ['$_id', '$$forecast_ids'] }, { $gt: ['$offset', now] }, { $lt: ['$offset', to] }] },
+                                },
+                            },
+                            { $addFields: { timestamp: { $add: ['$offset', startOfDay] } } },
+                        ],
+                        as: 'forecast',
+                    },
+                },
+                {
+                    $lookup: {
+                        from: this.historyModel.collection.name,
+                        let: { history_ids: '$history' },
+                        pipeline: [
+                            {
+                                $match: { $expr: { $and: [{ $in: ['$_id', '$$history_ids'] }, { $gt: ['$timestamp', from] }] } },
+                            },
+                        ],
+                        as: 'history',
+                    },
+                },
+                {
+                    $lookup: {
+                        from: this.pushModel.collection.name,
+                        let: { room_id: '$id' },
+                        pipeline: [
+                            {
+                                $lookup: {
+                                    from: this.pushSubscriptionModel.collection.name,
+                                    pipeline: [{ $match: { $expr: { $eq: ['$roomId', '$$room_id'] } } }],
+                                    as: 'subscriptions',
+                                },
+                            },
+                            { $match: { $expr: { $eq: ['$auth', subscriptionAuth] } } },
+                            { $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ['$subscriptions', 0] }, '$$ROOT'] } } },
+                            { $project: { _id: 0, __v: 0, roomId: 0, subscriptions: 0, endpoint: 0, auth: 0, p256dh: 0 } },
+                        ],
+                        as: 'pushdata',
+                    },
+                },
+                { $addFields: { push: { $arrayElemAt: ['$pushdata', 0] } } },
+                {
+                    $project: {
+                        '_id': 0,
+                        '__v': 0,
+                        'pushdata': 0,
+                        'push._id': 0,
+                        'push.__v': 0,
+                        'push.roomId': 0,
+                        'forecast._id': 0,
+                        'forecast.__v': 0,
+                        'forecast.offset': 0,
+                        'forecast.occupancyValues': 0,
+                        'history._id': 0,
+                        'history.__v': 0,
+                    },
+                },
+            ])
             .exec();
     }
+
+    async roomsForRecommendation(): Promise<RoomData[]> {
+        const { offset } = this.calcOffsetAndTimeStamp();
+        const toOffset = offset + RECOMMENDATION_FORCAST * MIN_MILLISECOND_FACTOR;
+        const resultList = [];
+        const rooms = await this.roomModel
+            .aggregate([
+                {
+                    $lookup: {
+                        from: this.forecastModel.collection.name,
+                        let: { forecast_ids: '$forecast' },
+                        pipeline: [
+                            {
+                                $match: {
+                                    $expr: {
+                                        $and: [
+                                            { $in: ['$_id', '$$forecast_ids'] },
+                                            { $gte: ['$offset', offset] },
+                                            { $lt: ['$offset', toOffset] },
+                                        ],
+                                    },
+                                },
+                            },
+                        ],
+                        as: 'forecast',
+                    },
+                },
+                { $match: { forecast: { $gt: [] } } },
+                { $project: { history: 0 } },
+            ])
+            .exec();
+
+        const freeOffset = offset + FREE_TIME * MIN_MILLISECOND_FACTOR;
+        const minFreeCount = Math.ceil(FREE_TIME / INTERVAL) - 1;
+        const minFullCount = Math.ceil((RECOMMENDATION_FORCAST - FREE_TIME) / INTERVAL) - 1;
+        let freeCount = 0;
+        let fullCount = 0;
+        rooms.forEach(room => {
+            const matched = room.forecast.reduce((memo, forcast) => {
+                if (forcast.offset < freeOffset) {
+                    freeCount++;
+                    return memo && forcast.occupancy < RoomFilling.SEMIFULL;
+                } else {
+                    fullCount++;
+                    return memo && forcast.occupancy > RoomFilling.SEMIFULL;
+                }
+            }, true);
+            if (matched && freeCount >= minFreeCount && fullCount >= minFullCount) {
+                resultList.push(room);
+            }
+        });
+        return resultList;
+    }
+
     room(roomId: string): Promise<RoomData> {
         return this.roomModel
             .findOne({ id: roomId }, { _id: 0, __v: 0, forecast: 0 })
@@ -93,14 +227,7 @@ export class RoomService {
                 memo.set(forecast.offset + 'ms', forecast);
                 return memo;
             }, new Map<string, any>());
-            // update history and forecast
-            const date = moment.utc(fillings[0].timestamp);
-            // get raster minutes
-            const minutes = Math.floor(date.minutes() / INTERVAL);
-            // calculate start timestamp for processing
-            let timestamp = date.startOf('hour').valueOf() + minutes * MILLI_INTERVAL;
-            // start offset for forecast
-            let offset = moment.utc(timestamp).valueOf() - date.startOf('day').valueOf();
+            let { timestamp, offset } = this.calcOffsetAndTimeStamp(fillings[0].timestamp);
             // upper timestamp to check time slot end
             let nextTimestamp = timestamp + MILLI_INTERVAL;
             let sum = 0;
@@ -158,16 +285,38 @@ export class RoomService {
             // update status
             room.status = this.getStatus(room.history);
 
+            // trigger isFree push
+            try {
+                await this.triggerIsFreePush(room);
+            } catch (e) {
+                Logger.error(e);
+            }
+
             // update history and set average values
-            const result = this.filterHistoryAndCalcAverage(room.history);
-            room.history = result.history;
-            room.averageWaitingTime = result.averageWaitingTime;
-            room.averageOccupancy = result.averageOccupancy;
+            const { history, averageWaitingTime, averageOccupancy } = this.filterHistoryAndCalcAverage(room.history);
+            room.history = history;
+            room.averageWaitingTime = averageWaitingTime;
+            room.averageOccupancy = averageOccupancy;
 
             return room;
         } catch (e) {
             Logger.error(e);
         }
+    }
+
+    private calcOffsetAndTimeStamp(givenTimeStamp = moment.utc().valueOf()): { timestamp: number, offset: number } {
+        // update history and forecast
+        const date = moment.utc(givenTimeStamp);
+        // get raster minutes
+        const minutes = Math.floor(date.minutes() / INTERVAL);
+        // calculate start timestamp for processing
+        const timestamp = date.startOf('hour').valueOf() + minutes * MILLI_INTERVAL;
+        // start offset for forecast
+        const offset = moment.utc(timestamp).valueOf() - date.startOf('day').valueOf();
+        return {
+            timestamp,
+            offset,
+        };
     }
 
     private async calculateForecastOccupancy(forecastMap: Map<string, any>, occupancy: number, offset: number): Promise<number[]> {
@@ -205,7 +354,7 @@ export class RoomService {
         return RoomState.FREE;
     }
 
-    private filterHistoryAndCalcAverage(history: any[]): { history: any[], averageWaitingTime: number, averageOccupancy: number } {
+    private filterHistoryAndCalcAverage(history: HistoryData[]): { history: any[], averageWaitingTime: number, averageOccupancy: number } {
         const lowerBound = moment().utc().subtract(7, 'days').valueOf();
         let occupanySum = 0;
         let timeSum = 0;
@@ -231,5 +380,15 @@ export class RoomService {
             result.averageWaitingTime = Math.round((timeSum / timeBlockCount) * MIN_MILLISECOND_FACTOR);
         }
         return result;
+    }
+
+    private triggerIsFreePush(room: RoomData): Promise<any> {
+        const end = room.history.length;
+        const start = end >= FREE_INTERVALS ? end - FREE_INTERVALS : 0;
+        const isFree = room.history.slice(start, end).reduce((memo, item) => memo && item.occupancy < RoomFilling.SEMIFULL, true);
+        if (isFree) {
+            return this.pushService.sendIfFreePush(room);
+        }
+        return Promise.resolve();
     }
 }

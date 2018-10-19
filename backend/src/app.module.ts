@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
+import { MongooseModule, MongooseModuleOptions } from '@nestjs/mongoose';
 import { ApiController } from './api.controller';
 import { RoomService } from './room.service';
 import { ScheduleService } from './schedule.service';
@@ -34,4 +34,6 @@ import { ForecastModelName, ForecastSchema } from './domain/schema/forecast.sche
         AWSBeService,
     ],
 })
-export class AppModule { }
+export class AppModule {
+    constructor() { }
+}

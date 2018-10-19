@@ -5,7 +5,7 @@ import { RoomService } from '../room.service';
 import { Router } from '@angular/router';
 
 import { Room } from '../room';
-import { RoomListComponent } from '../room-list/room-list.component';
+import { RoomListComponent, RoomFilling } from '../room-list/room-list.component';
 import { IChartOptions } from 'chartist';
 
 const STORGE_KEY = 'ct_favorites';
@@ -60,5 +60,9 @@ export class RoomComponent implements OnInit {
 
     gotoRoomDetails(): void {
         this.router.navigateByUrl(`/room/${this.room.id}`);
+    }
+
+    get isIfFreeDisabled() {
+        return this.room.history.length === 0 || this.room.history[this.room.history.length - 1].occupancy >= RoomFilling.SEMIFULL;
     }
 }

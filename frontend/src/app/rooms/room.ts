@@ -7,6 +7,7 @@ export class Room {
     public averageWaitingTime: number;
     public forecast?: Array<any>;
     public history?: Array<any>;
+    public push?: { ifFree: boolean, recommendations: boolean };
 
     constructor(
         public id: string,

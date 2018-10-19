@@ -15,12 +15,12 @@
     <span class="push-label">Benachrichtigen</span>
     <div class="push-toogles">
       <div class="push-toggle">
-        <mat-slide-toggle [labelPosition]="'before'" (change)="toogleIfFreePush($event)">
+        <mat-slide-toggle [labelPosition]="'before'" [checked]="room.push?.ifFree" [disabled]="isIfFreeDisabled" (change)="toogleIfFreePush($event)">
           wenn frei
         </mat-slide-toggle>
       </div>
       <div>
-        <mat-slide-toggle [labelPosition]="'before'" (change)="toogleRecommendationsPush($event)">
+        <mat-slide-toggle [labelPosition]="'before'" [checked]="room.push?.recommendations" (change)="toogleRecommendationsPush($event)">
           Empfehlungen
         </mat-slide-toggle>
       </div>

@@ -20,6 +20,11 @@ const TIMER_DELAY = 5000; // 5 seconds delay
 const TIMER_INTERVAL = 60000; // 1 minute interval
 const HOUR_MILLIS = 60 * 60 * 1000;
 
+export enum RoomFilling {
+    SEMIFULL = 20,
+    FULL = 75,
+}
+
 @Component({
     selector: 'app-room-list',
     templateUrl: './room-list.component.html',
@@ -63,7 +68,7 @@ export class RoomListComponent implements OnInit, OnDestroy {
 
     static getChartOptions(withNow = false, id = '') {
         const plugins: Function[] = [
-            thresholdPlugin({ thresholds: [15, 60], id })
+            thresholdPlugin({ thresholds: [RoomFilling.SEMIFULL, RoomFilling.FULL], id })
         ];
         if (withNow) {
             plugins.push(verticalLinePlugin({ label: 'jetzt', position: 'now', className: 'ct-now' }));
