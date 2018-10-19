@@ -89,10 +89,9 @@ export class PushService {
   async sendRecommendationPush(room: RoomData) {
     try {
       // get all subscriptions if recommendation = true
-      const pushes: PushSubscriptionData[] = await this.pushSubscriptionModel.find({ recommendation: true, roomId: room.id }).exec();
+      const pushes: PushSubscriptionData[] = await this.pushSubscriptionModel.find({ recommendations: true, roomId: room.id }).exec();
       const ids: Types.ObjectId[] = pushes.map(p => Types.ObjectId(p._id));
       const subscriptions: PushData[] = await this.pushModel.find({ subscriptions: { $in: ids } }).exec();
-
       // send push
       await this.sendPush(subscriptions, room.id, `${room.name} ist jetzt noch frei. Nutze die Chance.`);
     } catch (error) {
@@ -105,7 +104,8 @@ export class PushService {
       notification: {
         title: 'CoffeeTime',
         body: message,
-        vibrate: [100, 50, 100],
+        icon: '/assets/icons/icon-192x192.png',
+        vibrate: [300, 100, 400],
         data: {
           roomId,
         },

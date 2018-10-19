@@ -49,19 +49,6 @@ export class RoomService {
         const from = moment.utc().subtract(2, 'hours').valueOf();
         const now = moment.utc().valueOf() - startOfDay;
         const to = now + HOUR_MILLIS;
-        /* const rooms = this.roomModel
-             .find({}, { _id: 0, __v: 0 })
-             .populate({
-                 path: 'forecast',
-                 match: { offset: { $gt: now, $lt: to } },
-                 select: '-_id -occupancyValues',
-             })
-             .populate({
-                 path: 'history',
-                 match: { timestamp: { $gt: from } },
-                 select: '-_id',
-             })
-             .exec();*/
 
         return this.roomModel
             .aggregate([
@@ -146,11 +133,7 @@ export class RoomService {
                             {
                                 $match: {
                                     $expr: {
-                                        $and: [
-                                            { $in: ['$_id', '$$forecast_ids'] },
-                                            { $gte: ['$offset', offset] },
-                                            { $lt: ['$offset', toOffset] },
-                                        ],
+                                        $and: [{ $in: ['$_id', '$$forecast_ids'] }, { $gte: ['$offset', offset] }, { $lt: ['$offset', toOffset] }],
                                     },
                                 },
                             },
@@ -168,20 +151,26 @@ export class RoomService {
         const minFullCount = Math.ceil((RECOMMENDATION_FORCAST - FREE_TIME) / INTERVAL) - 1;
         let freeCount = 0;
         let fullCount = 0;
+        let occupancyString = '';
+
         rooms.forEach(room => {
-            const matched = room.forecast.reduce((memo, forcast) => {
-                if (forcast.offset < freeOffset) {
+            const matched = room.forecast.reduce((memo, forecast) => {
+                occupancyString += forecast.occupancy;
+                if (forecast.offset < freeOffset) {
                     freeCount++;
-                    return memo && forcast.occupancy < RoomFilling.SEMIFULL;
+                    return memo && forecast.occupancy < RoomFilling.SEMIFULL;
                 } else {
                     fullCount++;
-                    return memo && forcast.occupancy > RoomFilling.SEMIFULL;
+                    return memo && forecast.occupancy > RoomFilling.SEMIFULL;
                 }
             }, true);
             if (matched && freeCount >= minFreeCount && fullCount >= minFullCount) {
                 resultList.push(room);
             }
         });
+
+        Logger.log(`Forecast occupancies checked: ${occupancyString} for free ${freeCount} and full ${fullCount}`);
+
         return resultList;
     }
 
@@ -384,8 +373,16 @@ export class RoomService {
 
     private triggerIsFreePush(room: RoomData): Promise<any> {
         const end = room.history.length;
-        const start = end >= FREE_INTERVALS ? end - FREE_INTERVALS : 0;
-        const isFree = room.history.slice(start, end).reduce((memo, item) => memo && item.occupancy < RoomFilling.SEMIFULL, true);
+        const start = end >= FREE_INTERVALS + 1 ? end - FREE_INTERVALS + 1 : 0;
+        const isFree = room.history
+            .slice(start, end)
+            .reduce((memo, item, index) => {
+                // first item should be the full state
+                if (index === 0) {
+                    return memo && item.occupancy > RoomFilling.SEMIFULL;
+                }
+                return memo && item.occupancy < RoomFilling.SEMIFULL;
+            }, true);
         if (isFree) {
             return this.pushService.sendIfFreePush(room);
         }

@@ -10,11 +10,11 @@ import { formatDate } from '@angular/common';
 
 const STORGE_KEY = 'ct_favorites';
 
-const STATUS_MAP = {
-    full: 'voll',
-    semifull: 'gefüllt',
-    free: 'frei'
-};
+export enum RoomState {
+    FULL = 'full',
+    SEMIFULL = 'semifull',
+    FREE = 'free',
+}
 
 const TIMER_DELAY = 5000; // 5 seconds delay
 const TIMER_INTERVAL = 60000; // 1 minute interval
@@ -111,7 +111,10 @@ export class RoomListComponent implements OnInit, OnDestroy {
                                     [...this.rooms, ...this.favoriteRooms].forEach(room => {
                                         if (room.id === updatedRoom.id) {
                                             room.forecast = updatedRoom.forecast;
-                                            room.status = STATUS_MAP[updatedRoom.status];
+                                            room.status = updatedRoom.status;
+                                            if (updatedRoom.push) {
+                                                room.push = updatedRoom.push;
+                                            }
                                         }
                                     });
                                 },
@@ -156,7 +159,6 @@ export class RoomListComponent implements OnInit, OnDestroy {
                 room => {
                     // set some attributes
                     room.favorite = favorites.indexOf(room.id) !== -1;
-                    room.status = STATUS_MAP[room.status];
 
                     if (room.favorite) {
                         this.favoriteRooms.push(room);

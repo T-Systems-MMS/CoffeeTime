@@ -34,17 +34,18 @@ export class RoomService {
         return this.http.get<Room>(`${ROOM_URL}/${id}`);
     }
 
-    public togglePush(room: Room, type: pushTypes, active: boolean): void {
-        this.push.getAuthToken().then((auth_token) => {
-            this.http.put(`${ROOM_URL}/${room.id}/push`,
-                {
-                    type: type,
-                    value: active
-                }, {
-                    headers: new HttpHeaders({
-                        'PUSH_SUBSCRIPTION_AUTH': auth_token
-                    })
-                }).subscribe();
-        });
+    public togglePush(room: Room, type: pushTypes, active: boolean): Promise<any> {
+        return this.push.getAuthToken()
+            .then(auth_token => {
+                return this.http.put(`${ROOM_URL}/${room.id}/push`,
+                    {
+                        type: type,
+                        value: active
+                    }, {
+                        headers: new HttpHeaders({
+                            'PUSH_SUBSCRIPTION_AUTH': auth_token
+                        })
+                    }).toPromise();
+            });
     }
 }

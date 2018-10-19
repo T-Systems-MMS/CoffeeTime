@@ -1,26 +1,37 @@
 {
   "index": "/index.html",
-  "assetGroups": [
-    {
-      "name": "app",
-      "installMode": "prefetch",
-      "resources": {
-        "files": [
-          "/favicon.ico",
-          "/index.html",
-          "/*.css",
-          "/*.js"
-        ]
-      }
-    }, {
-      "name": "assets",
-      "installMode": "lazy",
-      "updateMode": "prefetch",
-      "resources": {
-        "files": [
-          "/assets/**"
-        ]
-      }
+  "assetGroups": [{
+    "name": "app",
+    "installMode": "prefetch",
+    "resources": {
+      "files": [
+        "/favicon.ico",
+        "/manifest.json",
+        "/index.html",
+        "/*.css",
+        "/*.js"
+      ],
+      "urls": [
+          "https://fonts.googleapis.com/**"
+      ]
     }
-  ]
+  }, {
+    "name": "assets",
+    "installMode": "prefetch",
+    "resources": {
+      "files": [
+        "/assets/**"
+      ]
+    }
+  }],
+  "dataGroups": [{
+    "name": "api",
+    "urls": ["/api/**"],
+    "cacheConfig": {
+      "maxSize": 100,
+      "maxAge": "1d",
+      "timeout": "800u",
+      "strategy": "freshness"
+    }
+  }]
 }
