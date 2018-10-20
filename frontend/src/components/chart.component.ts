@@ -1,25 +1,8 @@
-import {
-    Component,
-    ElementRef,
-    Input,
-    OnChanges,
-    OnDestroy,
-    OnInit,
-    SimpleChanges,
-    Attribute
-} from '@angular/core';
+import { Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, Attribute, HostBinding } from '@angular/core';
 
 import {
-    Pie,
-    Bar,
-    Line,
-    IChartistPieChart,
-    IChartistBarChart,
-    IChartistLineChart,
-    IChartOptions,
-    IChartistData,
-    IResponsiveOptionTuple,
-    IChartistBase
+    Pie, Bar, Line, IChartistPieChart, IChartistBarChart, IChartistLineChart, IChartOptions, IChartistData,
+    IResponsiveOptionTuple, IChartistBase
 } from 'chartist';
 
 interface Charts {
@@ -35,7 +18,8 @@ export interface ChartEvent {
 
 @Component({
     selector: 'app-chart',
-    template: '<ng-content></ng-content>'
+    template: '<ng-content></ng-content>',
+    styles: [':host { display: block; }']
 })
 export class ChartComponent implements OnInit, OnChanges, OnDestroy {
     @Input()

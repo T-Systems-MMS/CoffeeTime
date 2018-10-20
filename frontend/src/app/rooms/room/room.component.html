@@ -11,7 +11,7 @@
     <mat-card-subtitle class="room-title">{{statusmap[room.status]}}</mat-card-subtitle>
   </mat-card-header>
   <mat-card-content>
-    <app-chart [data]="room.forecast" type="Line" [options]="options"></app-chart>
+    <app-chart [data]="room.forecast" type="Line" [options]="options" [ngStyle]="{'height.px': options.height}"></app-chart>
     <span class="push-label">Benachrichtigen</span>
     <div class="push-toogles">
       <div class="push-toggle">
