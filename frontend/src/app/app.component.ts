@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
+import { RouterOutlet } from '@angular/router';
 import { slideInAnimation } from './animations';
+import localDe from '@angular/common/locales/de';
+import { registerLocaleData } from '@angular/common';
+import { SwPush, SwUpdate } from '@angular/service-worker';
 
 @Component({
     selector: 'app-root',
@@ -11,13 +14,26 @@ import { slideInAnimation } from './animations';
 
 export class AppComponent implements OnInit {
 
-    constructor(private router: Router) { }
+    constructor(
+        private swPush: SwPush,
+        private swUpdate: SwUpdate
+    ) {
+        registerLocaleData(localDe, 'de');
+    }
 
     ngOnInit() {
-        this.router.events.subscribe((event) => {
-            if (event instanceof NavigationEnd) {
-                window.scrollTo(0, 0);
-            }
+        this.swUpdate.available.subscribe(() => {
+            this.swUpdate.activateUpdate()
+                .then(() => {
+                    window.location.reload();
+                    console.log('Update available and has been activated!');
+                })
+                .catch(err => {
+                    console.log(err);
+                });
+        });
+        this.swPush.messages.subscribe(message => {
+            console.log(message);
         });
     }
 

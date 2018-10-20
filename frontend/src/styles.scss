@@ -61,6 +61,9 @@ $tsystems-app-theme: mat-light-theme($tsystems-app-primary, $tsystems-app-accent
   }
 }
 
+.ct-line {
+  stroke-width: 2px;
+}
 
 .ct-area {
   &.ct-threshold-0 {
@@ -76,7 +79,8 @@ $tsystems-app-theme: mat-light-theme($tsystems-app-primary, $tsystems-app-accent
   }
 }
 
-html, body {
+html,
+body {
   height: 100%;
 }
 

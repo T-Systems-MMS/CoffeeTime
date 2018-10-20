@@ -1,49 +1,52 @@
-import { IChartistBase, IChartOptions, Line, Bar } from "chartist";
-import { defaults } from "lodash";
+import { IChartistBase, IChartOptions, Line, Bar } from 'chartist';
+import { defaults } from 'lodash';
 
 export interface ThresholdPluginOptions {
-    thresholds: number[],
-    className?: string
+    thresholds: number[];
+    className?: string;
+    id?: string;
 }
 
 export function thresholdPlugin(options: ThresholdPluginOptions) {
     options = defaults(options, {
-        className: 'ct-threshold'
+        className: 'ct-threshold',
+        id: ''
     });
     // sort thresholds
-    options.thresholds.sort()
+    options.thresholds.sort();
     // add base
     const internalThresholds = [0, ...options.thresholds];
 
-    return function (chart: IChartistBase<IChartOptions>) {
+    return function(chart: IChartistBase<IChartOptions>) {
         if (chart instanceof Line || chart instanceof Bar) {
 
-            chart.on('draw', function (data) {
+            chart.on('draw', function(data) {
                 for (let i = 0; i < internalThresholds.length; i++) {
                     if (data.type === 'point') {
                         // apply only class
-                        if (data.value.y >= internalThresholds[i] && (!internalThresholds[i + 1] || data.value.y < internalThresholds[i + 1])) {
+                        if (data.value.y >= internalThresholds[i]
+                            && (!internalThresholds[i + 1] || data.value.y < internalThresholds[i + 1])) {
                             data.element.addClass(options.className + '-' + i);
                         }
                     } else if (data.type === 'line' || data.type === 'bar' || data.type === 'area') {
                         if (i === internalThresholds.length - 1) {
                             // reuse original element
                             data.element
-                                .attr({ mask: 'url(#' + options.className + '-mask-' + i + ')' })
+                                .attr({ mask: `url(#${options.id}-${options.className}-mask-${i})` })
                                 .addClass(options.className + '-' + i);
                         } else {
                             // add new elements for thresholds
                             data.element
                                 .parent()
                                 .elem(data.element._node.cloneNode(true), null, null, true)
-                                .attr({ mask: 'url(#' + options.className + '-mask-' + i + ')' })
+                                .attr({ mask: `url(#${options.id}-${options.className}-mask-${i})` })
                                 .addClass(options.className + '-' + i);
                         }
                     }
                 }
             });
 
-            chart.on('created', function (data) {
+            chart.on('created', function(data) {
                 const defs = data.svg.querySelector('defs') || data.svg.elem('defs');
                 const width = data.svg.width();
                 const height = data.svg.height();
@@ -59,7 +62,7 @@ export function thresholdPlugin(options: ThresholdPluginOptions) {
                         .elem('mask', {
                             x: 0, y: 0,
                             width: width, height: height,
-                            id: options.className + '-mask-' + i
+                            id: `${options.id}-${options.className}-mask-${i}`
                         })
                         .elem('rect', {
                             x: 0, y: nextProjectedThreshold,
@@ -69,5 +72,5 @@ export function thresholdPlugin(options: ThresholdPluginOptions) {
                 }
             });
         }
-    }
+    };
 }

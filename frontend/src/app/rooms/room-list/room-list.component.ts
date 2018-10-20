@@ -10,14 +10,20 @@ import { formatDate } from '@angular/common';
 
 const STORGE_KEY = 'ct_favorites';
 
-const STATUS_MAP = {
-    full: 'voll',
-    semifull: 'gefüllt',
-    free: 'frei'
-};
+export enum RoomState {
+    FULL = 'full',
+    SEMIFULL = 'semifull',
+    FREE = 'free',
+}
 
 const TIMER_DELAY = 5000; // 5 seconds delay
 const TIMER_INTERVAL = 60000; // 1 minute interval
+const HOUR_MILLIS = 60 * 60 * 1000;
+
+export enum RoomFilling {
+    SEMIFULL = 20,
+    FULL = 75,
+}
 
 @Component({
     selector: 'app-room-list',
@@ -35,34 +41,45 @@ export class RoomListComponent implements OnInit, OnDestroy {
         private ngZone: NgZone
     ) { }
 
-    static mapForecastOrHistory(room) {
-        const property = room.history ? 'history' : 'forecast';
-        room[property] = room[property].map(item => {
-            return { x: new Date(item.timestamp), y: Math.ceil(item.occupancy * 100) }
+    static mapForecastOrHistory(room, concat = false) {
+        ['history', 'forecast'].forEach((property) => {
+            if (room[property]) {
+                room[property] = room[property].map(item => {
+                    return { x: new Date(item.timestamp), y: Math.ceil(item.occupancy * 100) };
+                });
+                room[property] = {
+                    series: [{
+                        name: 'filling',
+                        data: room[property]
+                    }]
+                };
+            }
         });
-        room[property] = {
-            series: [{
-                name: 'filling',
-                data: room[property]
-            }]
+        if (concat && room.forecast && room.history) {
+            const forecast = room.forecast.series[0].data.length > 0 ? room.forecast.series[0].data : this.getFallBackForecast();
+            room.forecast.series[0].data = room.history.series[0].data.concat(forecast);
         }
         return room;
     }
 
-    static getChartOptions(withNow = false) {
+    private static getFallBackForecast() {
+        return [{ y: 0, x: new Date(Date.now()) }, { y: 0, x: new Date(Date.now() + HOUR_MILLIS) }];
+    }
+
+    static getChartOptions(withNow = false, id = '') {
         const plugins: Function[] = [
-            thresholdPlugin({ thresholds: [15, 60] })
+            thresholdPlugin({ thresholds: [RoomFilling.SEMIFULL, RoomFilling.FULL], id })
         ];
         if (withNow) {
-            plugins.push(verticalLinePlugin({ label: 'jetzt', position: Date.now(), className: 'ct-now' }))
+            plugins.push(verticalLinePlugin({ label: 'jetzt', position: 'now', className: 'ct-now' }));
         }
         return {
-            height: 100,
+            height: 130,
             fullWidth: true,
             axisX: {
                 type: FixedScaleAxis,
-                divisor: 3,
-                labelInterpolationFnc: (value: number) => formatDate(new Date(value), 'dd:mm', 'EN')
+                divisor: 4,
+                labelInterpolationFnc: (value: number) => formatDate(new Date(value), 'HH:mm', 'DE')
             },
             axisY: {
                 type: FixedScaleAxis,
@@ -76,7 +93,7 @@ export class RoomListComponent implements OnInit, OnDestroy {
             showPoint: false,
             showArea: true,
             plugins: plugins
-        }
+        };
     }
 
     ngOnInit() {
@@ -88,19 +105,23 @@ export class RoomListComponent implements OnInit, OnDestroy {
                     this.ngZone.run(() => {
                         const roomSubscription = this.service.getRooms()
                             .pipe(switchMap(rooms => from(rooms)))
-                            .pipe(map(room => RoomListComponent.mapForecastOrHistory(room)))
+                            .pipe(map(room => RoomListComponent.mapForecastOrHistory(room, true)))
                             .subscribe(
                                 updatedRoom => {
                                     [...this.rooms, ...this.favoriteRooms].forEach(room => {
                                         if (room.id === updatedRoom.id) {
                                             room.forecast = updatedRoom.forecast;
+                                            room.status = updatedRoom.status;
+                                            if (updatedRoom.push) {
+                                                room.push = updatedRoom.push;
+                                            }
                                         }
                                     });
                                 },
                                 error => { console.log(error); },
                                 () => roomSubscription.unsubscribe()
                             );
-                    })
+                    });
                 });
         });
     }
@@ -133,12 +154,11 @@ export class RoomListComponent implements OnInit, OnDestroy {
                 this.rooms = [];
                 return from(rooms);
             }))
-            .pipe(map(room => RoomListComponent.mapForecastOrHistory(room)))
+            .pipe(map(room => RoomListComponent.mapForecastOrHistory(room, true)))
             .subscribe(
                 room => {
                     // set some attributes
                     room.favorite = favorites.indexOf(room.id) !== -1;
-                    room.status = STATUS_MAP[room.status];
 
                     if (room.favorite) {
                         this.favoriteRooms.push(room);
@@ -150,5 +170,4 @@ export class RoomListComponent implements OnInit, OnDestroy {
                 () => roomSubscription.unsubscribe()
             );
     }
-
 }

@@ -1,7 +1,9 @@
-import { AWSMessage } from './awsmessage';
+export class AWSMessage {
+    readonly filling: number;
+}
 
 export class AWSResponse {
     readonly location: string;
     readonly message: AWSMessage;
-    readonly timestamp: Date;
+    readonly timestamp: string;
 }

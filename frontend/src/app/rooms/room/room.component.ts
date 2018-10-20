@@ -1,13 +1,19 @@
-import { Component, OnInit, Input, Inject } from '@angular/core';
+import { Component, OnInit, Input, Inject, ChangeDetectorRef } from '@angular/core';
 import { LOCAL_STORAGE, StorageService } from 'ngx-webstorage-service';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { RoomService } from '../room.service';
 import { Router } from '@angular/router';
 
 import { Room } from '../room';
-import { RoomListComponent } from '../room-list/room-list.component';
+import { RoomListComponent, RoomState } from '../room-list/room-list.component';
+import { IChartOptions } from 'chartist';
+import { PushService } from '../push.service';
 
 const STORGE_KEY = 'ct_favorites';
+const SUFFIX_MAP = {
+    area: 'Bereich',
+    kitchen: 'Küche',
+};
 @Component({
     selector: 'app-room',
     templateUrl: './room.component.html',
@@ -15,7 +21,14 @@ const STORGE_KEY = 'ct_favorites';
 })
 export class RoomComponent implements OnInit {
 
-    options = RoomListComponent.getChartOptions(true);
+    options: IChartOptions;
+    suffix: string;
+    pushAvailable: boolean;
+    statusmap: {
+        [RoomState.FULL]: string,
+        [RoomState.SEMIFULL]: string,
+        [RoomState.FREE]: string
+    };
 
     @Input()
     room: Room;
@@ -23,10 +36,20 @@ export class RoomComponent implements OnInit {
     constructor(
         private service: RoomService,
         private router: Router,
-        @Inject(LOCAL_STORAGE) private storage: StorageService
+        private push: PushService,
+        @Inject(LOCAL_STORAGE) private storage: StorageService,
     ) { }
 
-    ngOnInit() { }
+    ngOnInit() {
+        this.options = RoomListComponent.getChartOptions(true, this.room.id);
+        this.suffix = SUFFIX_MAP[this.room.type];
+        this.statusmap = {
+            [RoomState.FULL]: 'voll',
+            [RoomState.SEMIFULL]: 'gefüllt',
+            [RoomState.FREE]: 'frei'
+        };
+        this.pushAvailable = this.push.isPushAvailable();
+    }
 
     toogleFavorite(): void {
         this.room.favorite = !this.room.favorite;
@@ -41,15 +64,37 @@ export class RoomComponent implements OnInit {
         this.storage.set(STORGE_KEY, favorites);
     }
 
-    toogleIfFreePush(event: MatSlideToggleChange): void {
-        this.service.togglePush(this.room, 'ifFree', event.checked);
+    toogleIfFreePush(event: MatSlideToggleChange) {
+        this.service.togglePush(this.room, 'ifFree', event.checked)
+            .then(() => {
+                if (!this.room.push) {
+                    this.room.push = { ifFree: false, recommendations: false };
+                }
+                this.room.push.ifFree = event.checked;
+            })
+            .catch((err) => {
+                console.log(err);
+            });
     }
 
-    toogleRecommendationsPush(event: MatSlideToggleChange): void {
-        this.service.togglePush(this.room, 'recommendations', event.checked);
+    toogleRecommendationsPush(event: MatSlideToggleChange) {
+        this.service.togglePush(this.room, 'recommendations', event.checked)
+            .then(() => {
+                if (!this.room.push) {
+                    this.room.push = { ifFree: false, recommendations: false };
+                }
+                this.room.push.recommendations = event.checked;
+            })
+            .catch((err) => {
+                console.log(err);
+            });
     }
 
     gotoRoomDetails(): void {
         this.router.navigateByUrl(`/room/${this.room.id}`);
+    }
+
+    get isIfFreeDisabled() {
+        return this.room.status === RoomState.FREE && (!this.room.push || !this.room.push.ifFree);
     }
 }

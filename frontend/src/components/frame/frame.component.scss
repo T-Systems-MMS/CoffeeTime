@@ -10,12 +10,15 @@ mat-toolbar {
 }
 
 .content {
-  height: 100%;
-  margin-top: 64px;
+  height: calc(100% - 64px);
+  position: absolute;
+  top: 64px;
+  width: 100%;
 }
 
 @media (max-width: 599px) {
   .content {
-    margin-top: 56px;
+    height: calc(100% - 56px);
+    top: 56px;
   }
 }

@@ -1,6 +1,6 @@
 export class Push{
-    iffree: boolean;
-    recommendations: boolean;
+    type: 'ifFree' | 'recommendations';
+    value: boolean;
 
     constructor() {}
 }
