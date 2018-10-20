@@ -28,7 +28,6 @@ export class PushService {
             CT_VAPID_PUBLIC_KEY,
             process.env.CT_VAPID_PRIVATE_KEY,
         );
-
     }
 
     update(subscriptionAuth: string, id: string, push: Push): void {
@@ -56,10 +55,9 @@ export class PushService {
         newSubscription.save();
     }
 
-    delete(auth: string): void {
-        this.pushModel.findOneAndDelete({ auth: { $eq: auth } }).populate('subscriptions').exec().then(deleted => {
-            this.pushSubscriptionModel.deleteMany(deleted.subscriptions).exec();
-        });
+    async delete(auth: string): Promise<void> {
+        const deleted = await this.pushModel.findOneAndDelete({ auth }).exec();
+        await this.pushSubscriptionModel.deleteMany({ _id: { $in: deleted.subscriptions } }).exec();
     }
 
     async sendIfFreePush(room: RoomData) {
@@ -68,9 +66,6 @@ export class PushService {
             const pushes: PushSubscriptionData[] = await this.pushSubscriptionModel.find({ ifFree: true, roomId: room.id }).exec();
             const ids: Types.ObjectId[] = pushes.map(p => Types.ObjectId(p._id));
             const subscriptions: PushData[] = await this.pushModel.find({ subscriptions: { $in: ids } }).exec();
-
-            // send push
-            await this.sendPush(subscriptions, room.id, `${room.name} ist wieder frei.`);
 
             // set all subscriptions to ifFree = false
             for (const p of pushes) {
@@ -81,6 +76,10 @@ export class PushService {
                     Logger.error(error);
                 }
             }
+
+            // send push
+            Logger.log(`Send if free push for room ${room.name} and ${subscriptions.length} subscriptions.`, PushService.name);
+            await this.sendPush(subscriptions, room.id, `${room.name} ist wieder frei.`);
         } catch (error) {
             Logger.error(error);
         }
@@ -125,7 +124,12 @@ export class PushService {
             try {
                 await sendNotification(pushSubscription, JSON.stringify(payload), { proxy: process.env.HTTPS_PROXY });
             } catch (error) {
-                Logger.error(error);
+                // delete orphaned subscriptions
+                if (error.statusCode === 410) {
+                    await this.delete(s.auth);
+                } else {
+                    Logger.error(error);
+                }
             }
         }
     }

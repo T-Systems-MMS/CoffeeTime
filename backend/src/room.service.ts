@@ -25,8 +25,9 @@ const MAX_FORECAST_VALUES = 4;
 const DAY_MILLIS = 24 * 60 * 60 * 1000;
 const WEIGHT_FACTOR = 2;
 const FREE_TIME = 10; // minutes
-const RECOMMENDATION_FORCAST = FREE_TIME + 10; // minutes
-const FREE_INTERVALS = 3;
+const RECOMMENDATION_FORCAST = FREE_TIME + 5; // minutes
+const MIN_FREE_INTERVALS = 3;
+const FREE_INTERVALS_WINDOW = 10;
 
 @Injectable()
 export class RoomService {
@@ -171,12 +172,15 @@ export class RoomService {
             if (matched && freeCount >= minFreeCount && fullCount >= minFullCount) {
                 resultList.push(room);
             }
-            Logger.log(`Forecast occupancies checked: [${occupancies.join(' ')}] for free ${freeCount} and full ${fullCount}`, RoomService.name);
+            // tslint:disable-next-line:max-line-length
+            Logger.log(`Forecast occupancies checked: [${occupancies.join(' ')}] by ${freeCount}:${fullCount}`, RoomService.name);
             // reset for the next room
             occupancies = [];
             freeCount = 0;
             fullCount = 0;
         });
+
+        Logger.log(`Got ${resultList.length} rooms to recommend`, RoomService.name);
 
         return resultList;
     }
@@ -382,21 +386,28 @@ export class RoomService {
         return result;
     }
 
-    private triggerIsFreePush(room: RoomData): Promise<any> {
+    private async triggerIsFreePush(room: RoomData): Promise<any> {
         const end = room.history.length;
-        const start = end >= FREE_INTERVALS + 1 ? end - FREE_INTERVALS + 1 : 0;
-        const isFree = room.history
-            .slice(start, end)
-            .reduce((memo, item, index) => {
-                // first item should be the full state
-                if (index === 0) {
-                    return memo && item.occupancy > RoomFilling.SEMIFULL;
-                }
-                return memo && item.occupancy < RoomFilling.SEMIFULL;
-            }, true);
-        if (isFree) {
-            return this.pushService.sendIfFreePush(room);
+        const start = end >= FREE_INTERVALS_WINDOW + 1 ? end - FREE_INTERVALS_WINDOW - 1 : 0;
+        let freeCount = 0;
+
+        // get slice
+        const slice = room.history.slice(start, end).reverse();
+
+        // count free slots
+        for (const item of slice) {
+            if (item.occupancy < RoomFilling.SEMIFULL) {
+                freeCount++;
+            } else {
+                // at least at the last index should this be called
+                break;
+            }
         }
-        return Promise.resolve();
+
+        // send push only if we have also a non free slot
+        if (freeCount >= MIN_FREE_INTERVALS && freeCount <= FREE_INTERVALS_WINDOW) {
+            Logger.log(`${room.id} free count ${freeCount} -> send push`, RoomService.name);
+            await this.pushService.sendIfFreePush(room);
+        }
     }
 }
