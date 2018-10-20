@@ -10,7 +10,7 @@ import { IChartOptions } from 'chartist';
 import { PushService } from '../push.service';
 
 const STORGE_KEY = 'ct_favorites';
-const SUFFIX_MAP = {
+export const SUFFIX_MAP = {
     area: 'Bereich',
     kitchen: 'Küche',
 };

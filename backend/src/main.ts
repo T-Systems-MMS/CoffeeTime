@@ -31,7 +31,7 @@ async function bootstrap() {
         },
     );
     const port = process.env.PORT || 3000;
-    Logger.log(`Listening on port ${port}`);
+    Logger.log(`Listening on port ${port}`, bootstrap.name);
     app.useGlobalFilters(new NotFoundExceptionFilter());
     await app.listen(port);
 }

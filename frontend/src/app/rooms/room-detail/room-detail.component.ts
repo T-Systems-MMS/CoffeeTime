@@ -8,6 +8,7 @@ import { Subscription } from 'rxjs';
 import { RoomListComponent } from '../room-list/room-list.component';
 import { map } from 'rxjs/operators';
 import { formatDate } from '@angular/common';
+import { SUFFIX_MAP } from '../room/room.component';
 
 @Component({
     selector: 'app-room-detail',
@@ -16,6 +17,7 @@ import { formatDate } from '@angular/common';
 })
 export class RoomDetailComponent implements OnInit, OnDestroy {
     room: Room;
+    roomLabel = '';
     private _subscription: Subscription;
 
     options = RoomListComponent.getChartOptions();
@@ -34,7 +36,10 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
         const id: string = this.route.snapshot.paramMap.get('id');
         this._subscription = this.service.getRoom(id)
             .pipe(map(room => RoomListComponent.mapForecastOrHistory(room)))
-            .subscribe(room => this.room = room);
+            .subscribe(room => {
+                this.room = room;
+                this.roomLabel = `${room.name} (${SUFFIX_MAP[this.room.type]})`;
+            });
     }
 
     ngOnDestroy(): void {

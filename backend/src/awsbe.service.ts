@@ -16,9 +16,10 @@ export class AWSBeService {
 
     update(): void {
         AWSBeService.KNOWN_ROOMS.forEach(roomId => {
+            Logger.log(`Fetch data from: ${AWSBeService.BE_URL}${roomId}`, AWSBeService.name);
             request.get({ url: `${AWSBeService.BE_URL}${roomId}`, json: true }, (error, response, body) => {
                 if (error) {
-                    Logger.log(error);
+                    Logger.log(error, AWSBeService.name);
                 } else {
                     if (response && response.statusCode === 200) {
                         this.processData(body);

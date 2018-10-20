@@ -1,5 +1,9 @@
 <app-frame label="CoffeeTime">
   <mat-icon icon>local_cafe</mat-icon>
+  <mat-progress-bar content mode="query" *ngIf="waitForloading"></mat-progress-bar>
+  <div content class="dummy-card" *ngIf="waitForloading">
+    <mat-card></mat-card>
+  </div>
   <mat-expansion-panel content expanded=true *ngIf="hasFavoriteRooms()">
     <app-room [room]=room *ngFor="let room of favoriteRooms"></app-room>
   </mat-expansion-panel>

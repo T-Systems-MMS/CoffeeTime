@@ -6,7 +6,8 @@ import { switchMap, map } from 'rxjs/operators';
 import { Interpolation, FixedScaleAxis } from 'chartist';
 import { verticalLinePlugin } from '../../../components/verticalline.plugin';
 import { thresholdPlugin } from '../../../components/threshold.plugin';
-import { formatDate } from '@angular/common';
+import { formatDate, DOCUMENT } from '@angular/common';
+import { EventManager } from '@angular/platform-browser';
 
 const STORGE_KEY = 'ct_favorites';
 
@@ -33,12 +34,16 @@ export enum RoomFilling {
 export class RoomListComponent implements OnInit, OnDestroy {
     rooms = [];
     favoriteRooms = [];
+    waitForloading = true;
     timerSubscription: Subscription = null;
+    unSubscribeVisibilityChange: Function;
 
     constructor(
         private service: RoomService,
         @Inject(LOCAL_STORAGE) private storage: StorageService,
-        private ngZone: NgZone
+        private ngZone: NgZone,
+        private eventManager: EventManager,
+        @Inject(DOCUMENT) private document: any
     ) { }
 
     static mapForecastOrHistory(room, concat = false) {
@@ -103,26 +108,15 @@ export class RoomListComponent implements OnInit, OnDestroy {
             this.timerSubscription = timer(TIMER_DELAY, TIMER_INTERVAL)
                 .subscribe(() => {
                     this.ngZone.run(() => {
-                        const roomSubscription = this.service.getRooms()
-                            .pipe(switchMap(rooms => from(rooms)))
-                            .pipe(map(room => RoomListComponent.mapForecastOrHistory(room, true)))
-                            .subscribe(
-                                updatedRoom => {
-                                    [...this.rooms, ...this.favoriteRooms].forEach(room => {
-                                        if (room.id === updatedRoom.id) {
-                                            room.forecast = updatedRoom.forecast;
-                                            room.status = updatedRoom.status;
-                                            if (updatedRoom.push) {
-                                                room.push = updatedRoom.push;
-                                            }
-                                        }
-                                    });
-                                },
-                                error => { console.log(error); },
-                                () => roomSubscription.unsubscribe()
-                            );
+                        this.updateRooms();
                     });
                 });
+        });
+
+        this.unSubscribeVisibilityChange = this.eventManager.addGlobalEventListener('document', 'visibilitychange', () => {
+            if (!this.document.hidden) {
+                this.updateRooms();
+            }
         });
     }
 
@@ -130,10 +124,13 @@ export class RoomListComponent implements OnInit, OnDestroy {
         if (this.timerSubscription) {
             this.timerSubscription.unsubscribe();
         }
+        if (this.unSubscribeVisibilityChange) {
+            this.unSubscribeVisibilityChange();
+        }
     }
 
     hasRooms(): boolean {
-        return this.rooms.length > 0;
+        return this.rooms && this.rooms.length > 0;
     }
 
     hasFavoriteRooms(): boolean {
@@ -165,6 +162,29 @@ export class RoomListComponent implements OnInit, OnDestroy {
                     } else {
                         this.rooms.push(room);
                     }
+
+                    this.waitForloading = false;
+                },
+                error => { console.log(error); },
+                () => roomSubscription.unsubscribe()
+            );
+    }
+
+    private updateRooms() {
+        const roomSubscription = this.service.getRooms()
+            .pipe(switchMap(rooms => from(rooms)))
+            .pipe(map(room => RoomListComponent.mapForecastOrHistory(room, true)))
+            .subscribe(
+                updatedRoom => {
+                    [...this.rooms, ...this.favoriteRooms].forEach(room => {
+                        if (room.id === updatedRoom.id) {
+                            room.forecast = updatedRoom.forecast;
+                            room.status = updatedRoom.status;
+                            if (updatedRoom.push) {
+                                room.push = updatedRoom.push;
+                            }
+                        }
+                    });
                 },
                 error => { console.log(error); },
                 () => roomSubscription.unsubscribe()
