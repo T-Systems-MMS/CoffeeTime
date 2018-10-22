@@ -11,7 +11,7 @@ try {
     }).hash;
 } catch(e) {
     // we are on heroku...
-    versionInfo.hash = process.env['HEROKU_SLUG_COMMIT'].slice(0, 7);
+    versionInfo.hash = process.env['SOURCE_VERSION'].slice(0, 7);
 }
 
 versionInfo.version = version;
