@@ -31,7 +31,6 @@ export class RoomListComponent implements OnInit, OnDestroy {
     rooms = [];
     favoriteRooms = [];
     waitForloading = true;
-    timerObservable: Observable<number>;
     timerSubscription: Subscription = null;
     unSubscribeVisibilityChange: Function;
 
@@ -77,8 +76,7 @@ export class RoomListComponent implements OnInit, OnDestroy {
             });
         };
         this.ngZone.runOutsideAngular(() => {
-            this.timerObservable = timer(TIMER_INTERVAL, TIMER_INTERVAL);
-            this.timerSubscription = this.timerObservable.subscribe(timeHandler);
+            this.timerSubscription = timer(TIMER_INTERVAL, TIMER_INTERVAL).subscribe(timeHandler);
         });
 
         this.unSubscribeVisibilityChange = this.eventManager.addGlobalEventListener('document', 'visibilitychange', () => {
@@ -87,7 +85,7 @@ export class RoomListComponent implements OnInit, OnDestroy {
             } else {
                 this.updateRooms();
                 this.ngZone.runOutsideAngular(() => {
-                    this.timerObservable.subscribe(timeHandler);
+                    this.timerSubscription = timer(TIMER_INTERVAL, TIMER_INTERVAL).subscribe(timeHandler);
                 });
             }
         });

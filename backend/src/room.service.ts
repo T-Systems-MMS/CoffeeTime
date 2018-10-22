@@ -280,7 +280,7 @@ export class RoomService {
                 }
 
                 // sum up values
-                if (filling.filling > RoomFilling.SEMIFULL) {
+                if (filling.filling > 0) {
                     sum += filling.filling * WEIGHT_FACTOR;
                     count += WEIGHT_FACTOR;
                 } else {
