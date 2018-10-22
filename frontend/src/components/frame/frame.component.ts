@@ -13,8 +13,7 @@ export class FrameComponent implements OnInit {
     @Output()
     public back: EventEmitter<any> = new EventEmitter();
 
-    constructor() { 
-    }
+    constructor() { }
 
     ngOnInit() {
     }

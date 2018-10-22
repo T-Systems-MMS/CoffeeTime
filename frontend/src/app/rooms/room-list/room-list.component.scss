@@ -4,10 +4,40 @@
   }
 }
 
+app-room ::ng-deep {
+  mat-card {
+    margin-bottom: 20px;
+  }
+}
+
+app-room:last-child ::ng-deep {
+  mat-card {
+    margin-bottom: 0;
+  }
+}
+
+.room-list {
+  min-height: calc(100% - 24px);
+  padding-bottom: 24px;
+  position: relative;
+}
+
 .dummy-card {
   padding: 15px 24px 20px;
 
   mat-card {
     height: 346px;
   }
+}
+
+.version {
+  bottom: 0;
+  display: flex;
+  font-size: .7rem;
+  font-weight: 300;
+  justify-content: center;
+  opacity: .7;
+  padding: 5px 0;
+  position: absolute;
+  width: 100%;
 }

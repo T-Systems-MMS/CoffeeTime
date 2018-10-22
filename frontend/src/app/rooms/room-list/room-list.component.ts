@@ -5,6 +5,7 @@ import { Subscription, timer, from, of, Observable } from 'rxjs';
 import { switchMap, map } from 'rxjs/operators';
 import { DOCUMENT } from '@angular/common';
 import { EventManager } from '@angular/platform-browser';
+import { VERSION } from 'src/environments/version';
 
 const STORGE_KEY = 'ct_favorites';
 
@@ -28,9 +29,11 @@ export enum RoomFilling {
     styleUrls: ['./room-list.component.scss']
 })
 export class RoomListComponent implements OnInit, OnDestroy {
+    version = `${VERSION.version} - ${VERSION.hash}`;
     rooms = [];
     favoriteRooms = [];
     waitForloading = true;
+    expanded = true;
     timerSubscription: Subscription = null;
     unSubscribeVisibilityChange: Function;
 
@@ -135,6 +138,7 @@ export class RoomListComponent implements OnInit, OnDestroy {
                     }
 
                     this.waitForloading = false;
+                    this.expanded = !this.hasFavoriteRooms();
                 },
                 error => { console.log(error); },
                 () => roomSubscription.unsubscribe()
