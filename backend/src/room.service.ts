@@ -90,7 +90,14 @@ export class RoomService {
                             {
                                 $lookup: {
                                     from: this.pushSubscriptionModel.collection.name,
-                                    pipeline: [{ $match: { $expr: { $eq: ['$roomId', '$$room_id'] } } }],
+                                    let: { subscription_ids: '$subscriptions' },
+                                    pipeline: [{
+                                        $match: {
+                                            $expr: {
+                                                $and: [{ $eq: ['$roomId', '$$room_id'] }, { $in: ['$_id', '$$subscription_ids'] }],
+                                            },
+                                        },
+                                    }],
                                     as: 'subscriptions',
                                 },
                             },
