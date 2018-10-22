@@ -15,6 +15,7 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { StorageServiceModule } from 'ngx-webstorage-service';
 import { ComponentModule } from '../../../components/component.module';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 describe('RoomListComponent', () => {
     let component: RoomListComponent;
@@ -38,7 +39,8 @@ describe('RoomListComponent', () => {
                 ServiceWorkerModule.register('', { enabled: false }),
                 StorageServiceModule,
                 ComponentModule,
-                MatDividerModule
+                MatDividerModule,
+                MatProgressBarModule
             ],
             providers: [
                 RoomService

@@ -17,16 +17,17 @@ enum RoomFilling {
     FULL = 0.75,
 }
 
-const INTERVAL = 1; // aggregation in minutes
-const MIN_MILLISECOND_FACTOR = 60000;
+const INTERVAL = 60; // aggregation in seconds, should be less or equal to 60
+const MILLISECOND_FACTOR = 1000;
 const HOUR_MILLIS = 60 * 60 * 1000;
-const MILLI_INTERVAL = INTERVAL * MIN_MILLISECOND_FACTOR;
+const MILLI_INTERVAL = INTERVAL * MILLISECOND_FACTOR;
 const MAX_FORECAST_VALUES = 4;
 const DAY_MILLIS = 24 * 60 * 60 * 1000;
 const WEIGHT_FACTOR = 2;
-const FREE_TIME = 10; // minutes
-const RECOMMENDATION_FORCAST = FREE_TIME + 10; // minutes
-const FREE_INTERVALS = 3;
+const FREE_TIME = 10 * 60; // seconds
+const RECOMMENDATION_FORCAST = FREE_TIME + 5 * 60; // seconds
+const MIN_FREE_INTERVALS = 3 * 60 / INTERVAL; // free window
+const FREE_INTERVALS_WINDOW = 10 * 60 / INTERVAL; // whole window
 
 @Injectable()
 export class RoomService {
@@ -63,6 +64,7 @@ export class RoomService {
                                 },
                             },
                             { $addFields: { timestamp: { $add: ['$offset', startOfDay] } } },
+                            { $sort: { offset: 1 } },
                         ],
                         as: 'forecast',
                     },
@@ -75,6 +77,7 @@ export class RoomService {
                             {
                                 $match: { $expr: { $and: [{ $in: ['$_id', '$$history_ids'] }, { $gt: ['$timestamp', from] }] } },
                             },
+                            { $sort: { timestamp: 1 } },
                         ],
                         as: 'history',
                     },
@@ -87,7 +90,14 @@ export class RoomService {
                             {
                                 $lookup: {
                                     from: this.pushSubscriptionModel.collection.name,
-                                    pipeline: [{ $match: { $expr: { $eq: ['$roomId', '$$room_id'] } } }],
+                                    let: { subscription_ids: '$subscriptions' },
+                                    pipeline: [{
+                                        $match: {
+                                            $expr: {
+                                                $and: [{ $eq: ['$roomId', '$$room_id'] }, { $in: ['$_id', '$$subscription_ids'] }],
+                                            },
+                                        },
+                                    }],
                                     as: 'subscriptions',
                                 },
                             },
@@ -99,6 +109,7 @@ export class RoomService {
                     },
                 },
                 { $addFields: { push: { $arrayElemAt: ['$pushdata', 0] } } },
+                { $sort: { id: 1 } },
                 {
                     $project: {
                         '_id': 0,
@@ -121,7 +132,7 @@ export class RoomService {
 
     async roomsForRecommendation(): Promise<RoomData[]> {
         const { offset } = this.calcOffsetAndTimeStamp();
-        const toOffset = offset + RECOMMENDATION_FORCAST * MIN_MILLISECOND_FACTOR;
+        const toOffset = offset + RECOMMENDATION_FORCAST * MILLISECOND_FACTOR;
         const resultList = [];
         const rooms = await this.roomModel
             .aggregate([
@@ -137,6 +148,7 @@ export class RoomService {
                                     },
                                 },
                             },
+                            { $sort: { offset: 1 } },
                         ],
                         as: 'forecast',
                     },
@@ -146,16 +158,16 @@ export class RoomService {
             ])
             .exec();
 
-        const freeOffset = offset + FREE_TIME * MIN_MILLISECOND_FACTOR;
+        const freeOffset = offset + FREE_TIME * MILLISECOND_FACTOR;
         const minFreeCount = Math.ceil(FREE_TIME / INTERVAL) - 1;
         const minFullCount = Math.ceil((RECOMMENDATION_FORCAST - FREE_TIME) / INTERVAL) - 1;
         let freeCount = 0;
         let fullCount = 0;
-        let occupancyString = '';
+        let occupancies = [];
 
         rooms.forEach(room => {
             const matched = room.forecast.reduce((memo, forecast) => {
-                occupancyString += forecast.occupancy;
+                occupancies.push(Math.round(forecast.occupancy * 100) / 100);
                 if (forecast.offset < freeOffset) {
                     freeCount++;
                     return memo && forecast.occupancy < RoomFilling.SEMIFULL;
@@ -167,9 +179,15 @@ export class RoomService {
             if (matched && freeCount >= minFreeCount && fullCount >= minFullCount) {
                 resultList.push(room);
             }
+            // tslint:disable-next-line:max-line-length
+            Logger.log(`Forecast occupancies checked: [${occupancies.join(' ')}] by ${freeCount}:${fullCount}`, RoomService.name);
+            // reset for the next room
+            occupancies = [];
+            freeCount = 0;
+            fullCount = 0;
         });
 
-        Logger.log(`Forecast occupancies checked: ${occupancyString} for free ${freeCount} and full ${fullCount}`);
+        Logger.log(`Got ${resultList.length} rooms to recommend`, RoomService.name);
 
         return resultList;
     }
@@ -180,6 +198,7 @@ export class RoomService {
             .populate({
                 path: 'history',
                 select: '-_id',
+                match: { timestamp: { $gt: moment.utc().subtract(3, 'days').valueOf() } },
             })
             .exec();
     }
@@ -224,7 +243,7 @@ export class RoomService {
             // last processed timestamp
             const lastTimestamp = room.history.length > 0 ? room.history[room.history.length - 1].timestamp : 0;
             // tslint:disable-next-line:max-line-length
-            Logger.log(`${room.id} offset: ${offset} time: ${moment.utc(timestamp).format()} next: ${moment.utc(nextTimestamp).format()}`);
+            Logger.log(`${room.id} offset: ${offset} time: ${moment.utc(timestamp).format()} next: ${moment.utc(nextTimestamp).format()}`, RoomService.name);
 
             for (const filling of fillings) {
                 // time slot over? -> ATTENTION: the last slot is ignored, because it is processed next time with all values present
@@ -234,7 +253,7 @@ export class RoomService {
                         // average value
                         const occupancy = sum / count;
 
-                        Logger.log(`history ${room.id} time: ${moment.utc(timestamp).format()} occupancy: ${occupancy}`);
+                        Logger.log(`history ${room.id} time: ${moment.utc(timestamp).format()} occupancy: ${occupancy}`, RoomService.name);
 
                         // add new history item
                         const newHistory = new this.historyModel({ _id: new Types.ObjectId(), occupancy, timestamp });
@@ -242,8 +261,12 @@ export class RoomService {
                         room.history.push(newHistory);
 
                         // caculate forecast occupancy
-                        const occupancies = await this.calculateForecastOccupancy(forecastMap, occupancy, offset);
-                        Logger.log(`forecast ${room.id} offset: ${offset} occupancy: ${occupancies[0]} -> ${occupancies[1]}`);
+                        const weekDay = moment.utc(timestamp).isoWeekday();
+                        // ignore saturday and sunday
+                        if (weekDay < 6) {
+                            const occupancies = await this.calculateForecastOccupancy(forecastMap, occupancy, offset);
+                            Logger.log(`forecast ${room.id} offset: ${offset} occupancy: ${occupancies[0]} -> ${occupancies[1]}`, RoomService.name);
+                        }
                     }
 
                     // go to next time slot
@@ -257,9 +280,9 @@ export class RoomService {
                 }
 
                 // sum up values
-                if (filling.filling > RoomFilling.SEMIFULL) {
+                if (filling.filling > 0) {
                     sum += filling.filling * WEIGHT_FACTOR;
-                    count += 2;
+                    count += WEIGHT_FACTOR;
                 } else {
                     sum += filling.filling;
                     count++;
@@ -296,10 +319,10 @@ export class RoomService {
     private calcOffsetAndTimeStamp(givenTimeStamp = moment.utc().valueOf()): { timestamp: number, offset: number } {
         // update history and forecast
         const date = moment.utc(givenTimeStamp);
-        // get raster minutes
-        const minutes = Math.floor(date.minutes() / INTERVAL);
+        // get raster seconds
+        const seconds = Math.floor(date.seconds() / INTERVAL);
         // calculate start timestamp for processing
-        const timestamp = date.startOf('hour').valueOf() + minutes * MILLI_INTERVAL;
+        const timestamp = date.startOf('minute').valueOf() + seconds * MILLI_INTERVAL;
         // start offset for forecast
         const offset = moment.utc(timestamp).valueOf() - date.startOf('day').valueOf();
         return {
@@ -348,17 +371,19 @@ export class RoomService {
         let occupanySum = 0;
         let timeSum = 0;
         let lastOccupancy = 0;
+        let lastTimeStamp;
         let timeBlockCount = 0;
         const result = { history: [], averageWaitingTime: null, averageOccupancy: null };
         result.history = history.filter(value => value.timestamp > lowerBound).map(value => {
             occupanySum += value.occupancy;
-            if (value.occupancy > RoomFilling.SEMIFULL) {
-                timeSum += INTERVAL / (value.occupancy > RoomFilling.FULL ? 1 : 2);
+            if (lastTimeStamp && value.occupancy > RoomFilling.SEMIFULL) {
+                timeSum += Math.abs(value.timestamp - lastTimeStamp) / (value.occupancy > RoomFilling.FULL ? 1 : 2);
             }
             if (value.occupancy < RoomFilling.SEMIFULL && lastOccupancy > RoomFilling.SEMIFULL) {
                 timeBlockCount++;
             }
             lastOccupancy = value.occupancy;
+            lastTimeStamp = value.timestamp;
             return value._id;
         });
 
@@ -366,26 +391,33 @@ export class RoomService {
             result.averageOccupancy = occupanySum / history.length;
         }
         if (timeBlockCount > 0) {
-            result.averageWaitingTime = Math.round((timeSum / timeBlockCount) * MIN_MILLISECOND_FACTOR);
+            result.averageWaitingTime = Math.round(timeSum / timeBlockCount);
         }
         return result;
     }
 
-    private triggerIsFreePush(room: RoomData): Promise<any> {
+    private async triggerIsFreePush(room: RoomData): Promise<any> {
         const end = room.history.length;
-        const start = end >= FREE_INTERVALS + 1 ? end - FREE_INTERVALS + 1 : 0;
-        const isFree = room.history
-            .slice(start, end)
-            .reduce((memo, item, index) => {
-                // first item should be the full state
-                if (index === 0) {
-                    return memo && item.occupancy > RoomFilling.SEMIFULL;
-                }
-                return memo && item.occupancy < RoomFilling.SEMIFULL;
-            }, true);
-        if (isFree) {
-            return this.pushService.sendIfFreePush(room);
+        const start = end >= FREE_INTERVALS_WINDOW + 1 ? end - FREE_INTERVALS_WINDOW - 1 : 0;
+        let freeCount = 0;
+
+        // get slice
+        const slice = room.history.slice(start, end).reverse();
+
+        // count free slots
+        for (const item of slice) {
+            if (item.occupancy < RoomFilling.SEMIFULL) {
+                freeCount++;
+            } else {
+                // at least at the last index should this be called
+                break;
+            }
         }
-        return Promise.resolve();
+
+        // send push only if we have also a non free slot
+        if (freeCount >= MIN_FREE_INTERVALS && freeCount <= FREE_INTERVALS_WINDOW) {
+            Logger.log(`${room.id} free count ${freeCount} -> send push`, RoomService.name);
+            await this.pushService.sendIfFreePush(room);
+        }
     }
 }

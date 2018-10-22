@@ -2,7 +2,7 @@
   "name": "CoffeeTime",
   "short_name": "CoffeeTime",
   "theme_color": "#e20074",
-  "background_color": "#ffffff",
+  "background_color": "#e20074",
   "display": "standalone",
   "scope": "/",
   "start_url": "/",

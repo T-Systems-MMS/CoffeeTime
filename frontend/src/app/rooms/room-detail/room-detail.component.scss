@@ -1,6 +1,23 @@
 .room-detail-content {
+  animation: 150ms ease-out 0ms show;
   height: calc(100% - 40px);
   padding: 20px;
+
+  .scroll-bar-hider {
+    overflow: hidden;
+
+    .chart-wrapper {
+      app-chart {
+        direction: ltr;
+        min-width: 2500px;
+      }
+
+      direction: rtl;
+      overflow-x: scroll;
+      overflow-y: hidden;
+      padding-bottom: 30px;
+    }
+  }
 }
 
 .content-group {
