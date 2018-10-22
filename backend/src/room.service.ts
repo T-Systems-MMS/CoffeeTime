@@ -391,7 +391,7 @@ export class RoomService {
             result.averageOccupancy = occupanySum / history.length;
         }
         if (timeBlockCount > 0) {
-            result.averageWaitingTime = Math.round((timeSum / timeBlockCount) * MILLISECOND_FACTOR);
+            result.averageWaitingTime = Math.round(timeSum / timeBlockCount);
         }
         return result;
     }
