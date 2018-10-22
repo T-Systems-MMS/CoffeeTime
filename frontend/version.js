@@ -10,9 +10,8 @@ try {
         dirtySemver: false
     }).hash;
 } catch(e) {
-    console.log(e);
     // we are on heroku...
-    versionInfo.hash = process.env['COMMIT_HASH'];
+    versionInfo.hash = process.env['HEROKU_SLUG_COMMIT'].slice(0, 7);
 }
 
 versionInfo.version = version;
