@@ -1,12 +1,9 @@
 import { Component, OnInit, OnDestroy, Inject, NgZone } from '@angular/core';
 import { RoomService } from '../room.service';
 import { LOCAL_STORAGE, StorageService } from 'ngx-webstorage-service';
-import { Subscription, timer, from, of } from 'rxjs';
+import { Subscription, timer, from, of, Observable } from 'rxjs';
 import { switchMap, map } from 'rxjs/operators';
-import { Interpolation, FixedScaleAxis } from 'chartist';
-import { verticalLinePlugin } from '../../../components/verticalline.plugin';
-import { thresholdPlugin } from '../../../components/threshold.plugin';
-import { formatDate, DOCUMENT } from '@angular/common';
+import { DOCUMENT } from '@angular/common';
 import { EventManager } from '@angular/platform-browser';
 
 const STORGE_KEY = 'ct_favorites';
@@ -17,7 +14,6 @@ export enum RoomState {
     FREE = 'free',
 }
 
-const TIMER_DELAY = 5000; // 5 seconds delay
 const TIMER_INTERVAL = 60000; // 1 minute interval
 const HOUR_MILLIS = 60 * 60 * 1000;
 
@@ -35,6 +31,7 @@ export class RoomListComponent implements OnInit, OnDestroy {
     rooms = [];
     favoriteRooms = [];
     waitForloading = true;
+    timerObservable: Observable<number>;
     timerSubscription: Subscription = null;
     unSubscribeVisibilityChange: Function;
 
@@ -71,57 +68,33 @@ export class RoomListComponent implements OnInit, OnDestroy {
         return [{ y: 0, x: new Date(Date.now()) }, { y: 0, x: new Date(Date.now() + HOUR_MILLIS) }];
     }
 
-    static getChartOptions(withNow = false, id = '') {
-        const plugins: Function[] = [
-            thresholdPlugin({ thresholds: [RoomFilling.SEMIFULL, RoomFilling.FULL], id })
-        ];
-        if (withNow) {
-            plugins.push(verticalLinePlugin({ label: 'jetzt', position: 'now', className: 'ct-now' }));
-        }
-        return {
-            height: 130,
-            fullWidth: true,
-            axisX: {
-                type: FixedScaleAxis,
-                divisor: 4,
-                labelInterpolationFnc: (value: number) => formatDate(new Date(value), 'HH:mm', 'DE')
-            },
-            axisY: {
-                type: FixedScaleAxis,
-                ticks: [0, 50, 100],
-                low: 0,
-                high: 100,
-                showLabel: false,
-                offset: 0
-            },
-            lineSmooth: Interpolation.step(),
-            showPoint: false,
-            showArea: true,
-            plugins: plugins
-        };
-    }
-
     ngOnInit() {
         this.fetchRooms();
         // workaround: run timer outside of angular (https://github.com/angular/angular/issues/20970)
+        const timeHandler = () => {
+            this.ngZone.run(() => {
+                this.updateRooms();
+            });
+        };
         this.ngZone.runOutsideAngular(() => {
-            this.timerSubscription = timer(TIMER_DELAY, TIMER_INTERVAL)
-                .subscribe(() => {
-                    this.ngZone.run(() => {
-                        this.updateRooms();
-                    });
-                });
+            this.timerObservable = timer(TIMER_INTERVAL, TIMER_INTERVAL);
+            this.timerSubscription = this.timerObservable.subscribe(timeHandler);
         });
 
         this.unSubscribeVisibilityChange = this.eventManager.addGlobalEventListener('document', 'visibilitychange', () => {
-            if (!this.document.hidden) {
+            if (this.document.hidden) {
+                this.timerSubscription.unsubscribe();
+            } else {
                 this.updateRooms();
+                this.ngZone.runOutsideAngular(() => {
+                    this.timerObservable.subscribe(timeHandler);
+                });
             }
         });
     }
 
     ngOnDestroy() {
-        if (this.timerSubscription) {
+        if (this.timerSubscription && !this.timerSubscription.closed) {
             this.timerSubscription.unsubscribe();
         }
         if (this.unSubscribeVisibilityChange) {

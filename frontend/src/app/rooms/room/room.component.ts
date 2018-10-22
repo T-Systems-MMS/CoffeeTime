@@ -1,13 +1,16 @@
-import { Component, OnInit, Input, Inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, Input, Inject } from '@angular/core';
 import { LOCAL_STORAGE, StorageService } from 'ngx-webstorage-service';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
-import { RoomService } from '../room.service';
 import { Router } from '@angular/router';
+import { Interpolation, FixedScaleAxis } from 'chartist';
 
+import { RoomService } from '../room.service';
 import { Room } from '../room';
-import { RoomListComponent, RoomState } from '../room-list/room-list.component';
-import { IChartOptions } from 'chartist';
+import { RoomListComponent, RoomState, RoomFilling } from '../room-list/room-list.component';
 import { PushService } from '../push.service';
+import { formatDate } from '@angular/common';
+import { thresholdPlugin } from 'src/components/threshold.plugin';
+import { verticalLinePlugin } from 'src/components/verticalline.plugin';
 
 const STORGE_KEY = 'ct_favorites';
 export const SUFFIX_MAP = {
@@ -21,7 +24,7 @@ export const SUFFIX_MAP = {
 })
 export class RoomComponent implements OnInit {
 
-    options: IChartOptions;
+    options;
     suffix: string;
     pushAvailable: boolean;
     statusmap: {
@@ -41,7 +44,30 @@ export class RoomComponent implements OnInit {
     ) { }
 
     ngOnInit() {
-        this.options = RoomListComponent.getChartOptions(true, this.room.id);
+        this.options = {
+            height: 130,
+            fullWidth: true,
+            axisX: {
+                type: FixedScaleAxis,
+                divisor: 5,
+                labelInterpolationFnc: (value: number) => formatDate(new Date(value), 'HH:mm', 'DE')
+            },
+            axisY: {
+                type: FixedScaleAxis,
+                ticks: [0, 50, 100],
+                low: 0,
+                high: 100,
+                showLabel: false,
+                offset: 0
+            },
+            lineSmooth: Interpolation.step(),
+            showPoint: false,
+            showArea: true,
+            plugins: [
+                thresholdPlugin({ thresholds: [RoomFilling.SEMIFULL, RoomFilling.FULL], id: this.room.id }),
+                verticalLinePlugin({ label: 'jetzt', position: 'now', className: 'ct-now' })
+            ]
+        };
         this.suffix = SUFFIX_MAP[this.room.type];
         this.statusmap = {
             [RoomState.FULL]: 'voll',

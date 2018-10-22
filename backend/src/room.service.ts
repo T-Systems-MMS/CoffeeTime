@@ -191,6 +191,7 @@ export class RoomService {
             .populate({
                 path: 'history',
                 select: '-_id',
+                match: { timestamp: { $gt: moment.utc().subtract(3, 'days').valueOf() } },
             })
             .exec();
     }

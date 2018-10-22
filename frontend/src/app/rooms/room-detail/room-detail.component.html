@@ -4,7 +4,11 @@
   <mat-icon icon aria-label="Sitzecke" *ngIf="room && room.type !== 'area' && room.type !== 'kitchen'">trip_origin</mat-icon>
   <mat-progress-bar content mode="query" *ngIf="!room"></mat-progress-bar>
   <div content class="room-detail-content" *ngIf="room" (swiperight)="gotoRooms()">
-    <app-chart [data]="room.history" type="Line" [options]="options" [ngStyle]="{'height.px': options.height}"></app-chart>
+    <div class=scroll-bar-hider [ngStyle]="{'height.px': options.height}">
+      <div class="chart-wrapper" [ngStyle]="{'height.px': options.height}" (mousewheel)="handleScroll($event)">
+        <app-chart [data]="room.history" type="Line" [options]="options" [ngStyle]="{'height.px': options.height}"></app-chart>
+      </div>
+    </div>
     <mat-divider></mat-divider>
     <div class="content-group">
       <div class="content-row">
