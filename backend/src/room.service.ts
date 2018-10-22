@@ -17,17 +17,17 @@ enum RoomFilling {
     FULL = 0.75,
 }
 
-const INTERVAL = 1; // aggregation in minutes
-const MIN_MILLISECOND_FACTOR = 60000;
+const INTERVAL = 60; // aggregation in seconds, should be less or equal to 60
+const MILLISECOND_FACTOR = 1000;
 const HOUR_MILLIS = 60 * 60 * 1000;
-const MILLI_INTERVAL = INTERVAL * MIN_MILLISECOND_FACTOR;
+const MILLI_INTERVAL = INTERVAL * MILLISECOND_FACTOR;
 const MAX_FORECAST_VALUES = 4;
 const DAY_MILLIS = 24 * 60 * 60 * 1000;
 const WEIGHT_FACTOR = 2;
-const FREE_TIME = 10; // minutes
-const RECOMMENDATION_FORCAST = FREE_TIME + 5; // minutes
-const MIN_FREE_INTERVALS = 3;
-const FREE_INTERVALS_WINDOW = 10;
+const FREE_TIME = 10 * 60; // seconds
+const RECOMMENDATION_FORCAST = FREE_TIME + 5 * 60; // seconds
+const MIN_FREE_INTERVALS = 3 * 60 / INTERVAL; // free window
+const FREE_INTERVALS_WINDOW = 10 * 60 / INTERVAL; // whole window
 
 @Injectable()
 export class RoomService {
@@ -132,7 +132,7 @@ export class RoomService {
 
     async roomsForRecommendation(): Promise<RoomData[]> {
         const { offset } = this.calcOffsetAndTimeStamp();
-        const toOffset = offset + RECOMMENDATION_FORCAST * MIN_MILLISECOND_FACTOR;
+        const toOffset = offset + RECOMMENDATION_FORCAST * MILLISECOND_FACTOR;
         const resultList = [];
         const rooms = await this.roomModel
             .aggregate([
@@ -158,7 +158,7 @@ export class RoomService {
             ])
             .exec();
 
-        const freeOffset = offset + FREE_TIME * MIN_MILLISECOND_FACTOR;
+        const freeOffset = offset + FREE_TIME * MILLISECOND_FACTOR;
         const minFreeCount = Math.ceil(FREE_TIME / INTERVAL) - 1;
         const minFullCount = Math.ceil((RECOMMENDATION_FORCAST - FREE_TIME) / INTERVAL) - 1;
         let freeCount = 0;
@@ -282,7 +282,7 @@ export class RoomService {
                 // sum up values
                 if (filling.filling > RoomFilling.SEMIFULL) {
                     sum += filling.filling * WEIGHT_FACTOR;
-                    count += 2;
+                    count += WEIGHT_FACTOR;
                 } else {
                     sum += filling.filling;
                     count++;
@@ -319,10 +319,10 @@ export class RoomService {
     private calcOffsetAndTimeStamp(givenTimeStamp = moment.utc().valueOf()): { timestamp: number, offset: number } {
         // update history and forecast
         const date = moment.utc(givenTimeStamp);
-        // get raster minutes
-        const minutes = Math.floor(date.minutes() / INTERVAL);
+        // get raster seconds
+        const seconds = Math.floor(date.seconds() / INTERVAL);
         // calculate start timestamp for processing
-        const timestamp = date.startOf('hour').valueOf() + minutes * MILLI_INTERVAL;
+        const timestamp = date.startOf('minute').valueOf() + seconds * MILLI_INTERVAL;
         // start offset for forecast
         const offset = moment.utc(timestamp).valueOf() - date.startOf('day').valueOf();
         return {
@@ -371,17 +371,19 @@ export class RoomService {
         let occupanySum = 0;
         let timeSum = 0;
         let lastOccupancy = 0;
+        let lastTimeStamp;
         let timeBlockCount = 0;
         const result = { history: [], averageWaitingTime: null, averageOccupancy: null };
         result.history = history.filter(value => value.timestamp > lowerBound).map(value => {
             occupanySum += value.occupancy;
-            if (value.occupancy > RoomFilling.SEMIFULL) {
-                timeSum += INTERVAL / (value.occupancy > RoomFilling.FULL ? 1 : 2);
+            if (lastTimeStamp && value.occupancy > RoomFilling.SEMIFULL) {
+                timeSum += Math.abs(value.timestamp - lastTimeStamp) / (value.occupancy > RoomFilling.FULL ? 1 : 2);
             }
             if (value.occupancy < RoomFilling.SEMIFULL && lastOccupancy > RoomFilling.SEMIFULL) {
                 timeBlockCount++;
             }
             lastOccupancy = value.occupancy;
+            lastTimeStamp = value.timestamp;
             return value._id;
         });
 
@@ -389,7 +391,7 @@ export class RoomService {
             result.averageOccupancy = occupanySum / history.length;
         }
         if (timeBlockCount > 0) {
-            result.averageWaitingTime = Math.round((timeSum / timeBlockCount) * MIN_MILLISECOND_FACTOR);
+            result.averageWaitingTime = Math.round((timeSum / timeBlockCount) * MILLISECOND_FACTOR);
         }
         return result;
     }

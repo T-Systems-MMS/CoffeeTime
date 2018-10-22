@@ -14,7 +14,7 @@ export enum RoomState {
     FREE = 'free',
 }
 
-const TIMER_INTERVAL = 60000; // 1 minute interval
+const TIMER_INTERVAL = 60 * 1000; // 60 seconds interval
 const HOUR_MILLIS = 60 * 60 * 1000;
 
 export enum RoomFilling {

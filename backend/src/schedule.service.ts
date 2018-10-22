@@ -8,8 +8,8 @@ defaults.enable = true;
 defaults.maxRetry = -1;
 defaults.retryInterval = 5000;
 
-const AWS_POLL_INTERVAL = 1 * 60 * 1000;
-const PUSH_CHECK_INTERVAL = 1 * 60 * 1000;
+const AWS_POLL_INTERVAL = 60 * 1000;
+const PUSH_CHECK_INTERVAL = 60 * 1000;
 
 @Injectable()
 export class ScheduleService extends NestSchedule {
