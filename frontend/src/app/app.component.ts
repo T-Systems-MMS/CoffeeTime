@@ -3,7 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import { slideInAnimation } from './animations';
 import localDe from '@angular/common/locales/de';
 import { registerLocaleData } from '@angular/common';
-import { SwPush, SwUpdate } from '@angular/service-worker';
+import { SwUpdate } from '@angular/service-worker';
 
 @Component({
     selector: 'app-root',
@@ -15,7 +15,6 @@ import { SwPush, SwUpdate } from '@angular/service-worker';
 export class AppComponent implements OnInit {
 
     constructor(
-        private swPush: SwPush,
         private swUpdate: SwUpdate
     ) {
         registerLocaleData(localDe, 'de');
@@ -31,9 +30,6 @@ export class AppComponent implements OnInit {
                 .catch(err => {
                     console.log(err);
                 });
-        });
-        this.swPush.messages.subscribe(message => {
-            console.log(message);
         });
     }
 

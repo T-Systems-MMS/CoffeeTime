@@ -8,6 +8,7 @@ export class Room {
     public forecast?: Array<any>;
     public history?: Array<any>;
     public push?: { ifFree: boolean, recommendations: boolean };
+    public dataOutdated?: boolean;
 
     constructor(
         public id: string,

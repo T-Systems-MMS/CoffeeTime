@@ -2,10 +2,11 @@ import { Component, OnInit, OnDestroy, Inject, NgZone } from '@angular/core';
 import { RoomService } from '../room.service';
 import { LOCAL_STORAGE, StorageService } from 'ngx-webstorage-service';
 import { Subscription, timer, from, of, Observable } from 'rxjs';
-import { switchMap, map } from 'rxjs/operators';
+import { switchMap, map, finalize } from 'rxjs/operators';
 import { DOCUMENT } from '@angular/common';
 import { EventManager } from '@angular/platform-browser';
 import { VERSION } from 'src/environments/version';
+import { SwPush } from '@angular/service-worker';
 
 const STORGE_KEY = 'ct_favorites';
 
@@ -35,14 +36,17 @@ export class RoomListComponent implements OnInit, OnDestroy {
     waitForloading = true;
     expanded = true;
     timerSubscription: Subscription = null;
+    pushMessagesSubscription: Subscription = null;
     unSubscribeVisibilityChange: Function;
+    lastCheck = Date.now();
 
     constructor(
         private service: RoomService,
         @Inject(LOCAL_STORAGE) private storage: StorageService,
         private ngZone: NgZone,
         private eventManager: EventManager,
-        @Inject(DOCUMENT) private document: any
+        @Inject(DOCUMENT) private document: any,
+        private swPush: SwPush
     ) { }
 
     static mapForecastOrHistory(room, concat = false) {
@@ -92,6 +96,10 @@ export class RoomListComponent implements OnInit, OnDestroy {
                 });
             }
         });
+
+        this.pushMessagesSubscription = this.swPush.messages.subscribe(() => {
+            this.updateRooms();
+        });
     }
 
     ngOnDestroy() {
@@ -100,6 +108,9 @@ export class RoomListComponent implements OnInit, OnDestroy {
         }
         if (this.unSubscribeVisibilityChange) {
             this.unSubscribeVisibilityChange();
+        }
+        if (this.pushMessagesSubscription) {
+            this.pushMessagesSubscription.unsubscribe();
         }
     }
 
@@ -126,6 +137,11 @@ export class RoomListComponent implements OnInit, OnDestroy {
                 return from(rooms);
             }))
             .pipe(map(room => RoomListComponent.mapForecastOrHistory(room, true)))
+            .pipe(finalize(() => {
+                roomSubscription.unsubscribe();
+                this.waitForloading = false;
+                this.lastCheck = Date.now();
+            }))
             .subscribe(
                 room => {
                     // set some attributes
@@ -137,22 +153,26 @@ export class RoomListComponent implements OnInit, OnDestroy {
                         this.rooms.push(room);
                     }
 
-                    this.waitForloading = false;
                     this.expanded = !this.hasFavoriteRooms();
                 },
-                error => { console.log(error); },
-                () => roomSubscription.unsubscribe()
+                error => { console.log(error); }
             );
     }
 
     private updateRooms() {
+        this.waitForloading = true;
         const roomSubscription = this.service.getRooms()
             .pipe(switchMap(rooms => from(rooms)))
             .pipe(map(room => RoomListComponent.mapForecastOrHistory(room, true)))
+            .pipe(finalize(() => {
+                roomSubscription.unsubscribe();
+                this.waitForloading = false;
+            }))
             .subscribe(
                 updatedRoom => {
                     [...this.rooms, ...this.favoriteRooms].forEach(room => {
                         if (room.id === updatedRoom.id) {
+                            room.dataOutdated = this.dataOutdated(room, updatedRoom);
                             room.forecast = updatedRoom.forecast;
                             room.status = updatedRoom.status;
                             if (updatedRoom.push) {
@@ -161,8 +181,24 @@ export class RoomListComponent implements OnInit, OnDestroy {
                         }
                     });
                 },
-                error => { console.log(error); },
-                () => roomSubscription.unsubscribe()
+                error => { console.log(error); }
             );
+    }
+
+    private dataOutdated(room, updatedRoom) {
+        if (room.history.series[0].data && updatedRoom.history.series[0].data) {
+            const lengthOld = room.history.series[0].data.length;
+            const lengthNew = updatedRoom.history.series[0].data.length;
+            if (lengthOld > 0 && lengthNew > 0) {
+                const lastOldDate = room.history.series[0].data[lengthOld - 1].x;
+                const lastNewDate = updatedRoom.history.series[0].data[lengthNew - 1].x;
+                const outdated = lastOldDate.getTime() >= lastNewDate.getTime();
+                if (!outdated) {
+                    this.lastCheck = Date.now();
+                }
+                return outdated && (Date.now() - this.lastCheck) > TIMER_INTERVAL;
+            }
+        }
+        return true;
     }
 }

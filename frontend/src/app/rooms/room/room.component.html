@@ -8,7 +8,7 @@
     <mat-card-title class="room-title">
       {{room.name}} ({{suffix}})
     </mat-card-title>
-    <mat-card-subtitle class="room-title">{{statusmap[room.status]}}</mat-card-subtitle>
+    <mat-card-subtitle class="room-title" [ngClass]="{'outdated': room.dataOutdated}">{{statusmap[room.status]}}</mat-card-subtitle>
   </mat-card-header>
   <mat-card-content>
     <app-chart [data]="room.forecast" type="Line" [options]="options" [ngStyle]="{'height.px': options.height}"></app-chart>

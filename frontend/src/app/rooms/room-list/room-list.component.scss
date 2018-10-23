@@ -2,12 +2,6 @@
   height: 100%;
 }
 
-:host ::ng-deep {
-  .mat-expansion-panel-body {
-    padding: 20px 24px;
-  }
-}
-
 app-room ::ng-deep {
   mat-card {
     margin-bottom: 20px;
@@ -24,13 +18,29 @@ app-room:last-child ::ng-deep {
   min-height: calc(100% - 24px);
   padding-bottom: 24px;
   position: relative;
-}
 
-.dummy-card {
-  padding: 15px 24px 20px;
+  mat-expansion-panel ::ng-deep {
+    .mat-expansion-panel-body {
+      padding: 20px 24px;
+    }
+  }
 
-  mat-card {
-    height: 346px;
+  &.loading {
+    mat-expansion-panel {
+      &:first-of-type ::ng-deep {
+        .mat-expansion-panel-body {
+          padding-top: 15px;
+        }
+      }
+    }
+  }
+
+  .dummy-card {
+    padding: 15px 24px 20px;
+
+    mat-card {
+      height: 346px;
+    }
   }
 }
 
