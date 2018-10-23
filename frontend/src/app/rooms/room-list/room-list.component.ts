@@ -6,6 +6,7 @@ import { switchMap, map, finalize } from 'rxjs/operators';
 import { DOCUMENT } from '@angular/common';
 import { EventManager } from '@angular/platform-browser';
 import { VERSION } from 'src/environments/version';
+import { SwPush } from '@angular/service-worker';
 
 const STORGE_KEY = 'ct_favorites';
 
@@ -35,6 +36,7 @@ export class RoomListComponent implements OnInit, OnDestroy {
     waitForloading = true;
     expanded = true;
     timerSubscription: Subscription = null;
+    pushMessagesSubscription: Subscription = null;
     unSubscribeVisibilityChange: Function;
     lastCheck = Date.now();
 
@@ -43,7 +45,8 @@ export class RoomListComponent implements OnInit, OnDestroy {
         @Inject(LOCAL_STORAGE) private storage: StorageService,
         private ngZone: NgZone,
         private eventManager: EventManager,
-        @Inject(DOCUMENT) private document: any
+        @Inject(DOCUMENT) private document: any,
+        private swPush: SwPush
     ) { }
 
     static mapForecastOrHistory(room, concat = false) {
@@ -93,6 +96,10 @@ export class RoomListComponent implements OnInit, OnDestroy {
                 });
             }
         });
+
+        this.pushMessagesSubscription = this.swPush.messages.subscribe(() => {
+            this.updateRooms();
+        });
     }
 
     ngOnDestroy() {
@@ -101,6 +108,9 @@ export class RoomListComponent implements OnInit, OnDestroy {
         }
         if (this.unSubscribeVisibilityChange) {
             this.unSubscribeVisibilityChange();
+        }
+        if (this.pushMessagesSubscription) {
+            this.pushMessagesSubscription.unsubscribe();
         }
     }
 
