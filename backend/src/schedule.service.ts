@@ -18,7 +18,7 @@ export class ScheduleService extends NestSchedule {
     }
 
     @Interval(AWS_POLL_INTERVAL)
-    logMich(): void {
+    fetchAws(): void {
         this.awsBeService.update();
     }
 
@@ -30,7 +30,7 @@ export class ScheduleService extends NestSchedule {
                 await this.pushService.sendRecommendationPush(room);
             }
         } catch (e) {
-            Logger.error(e);
+            Logger.error(e, ScheduleService.name);
         }
     }
 }

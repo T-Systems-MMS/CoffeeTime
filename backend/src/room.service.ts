@@ -24,10 +24,11 @@ const MILLI_INTERVAL = INTERVAL * MILLISECOND_FACTOR;
 const MAX_FORECAST_VALUES = 4;
 const DAY_MILLIS = 24 * 60 * 60 * 1000;
 const WEIGHT_FACTOR = 2;
-const FREE_TIME = 10 * 60; // seconds
-const RECOMMENDATION_FORCAST = FREE_TIME + 5 * 60; // seconds
+const FREE_TIME = 12 * 60; // seconds
+const RECOMMENDATION_FORCAST = FREE_TIME + 7 * 60; // seconds
 const MIN_FREE_INTERVALS = 3 * 60 / INTERVAL; // free window
 const FREE_INTERVALS_WINDOW = 10 * 60 / INTERVAL; // whole window
+const GAUSSIAN_KERNEL = [0.06136, 0.24477, 0.38774, 0.24477, 0.06136];
 
 @Injectable()
 export class RoomService {
@@ -159,35 +160,50 @@ export class RoomService {
             .exec();
 
         const freeOffset = offset + FREE_TIME * MILLISECOND_FACTOR;
-        const minFreeCount = Math.ceil(FREE_TIME / INTERVAL) - 1;
-        const minFullCount = Math.ceil((RECOMMENDATION_FORCAST - FREE_TIME) / INTERVAL) - 1;
+        const window = Math.floor(GAUSSIAN_KERNEL.length / 2);
+        const minFreeCount = Math.ceil(FREE_TIME / INTERVAL) - window - 1;
+        const minFullCount = Math.ceil((RECOMMENDATION_FORCAST - FREE_TIME) / INTERVAL) - window - 1;
         let freeCount = 0;
         let fullCount = 0;
         let occupancies = [];
 
         rooms.forEach(room => {
-            const matched = room.forecast.reduce((memo, forecast) => {
-                occupancies.push(Math.round(forecast.occupancy * 100) / 100);
-                if (forecast.offset < freeOffset) {
-                    freeCount++;
-                    return memo && forecast.occupancy < RoomFilling.SEMIFULL;
-                } else {
-                    fullCount++;
-                    return memo && forecast.occupancy > RoomFilling.SEMIFULL;
-                }
-            }, true);
+            let matched = false;
+            const forecastLength = room.forecast.length;
+            Logger.log(`${room.id} - got ${forecastLength} forecast values`, RoomService.name + ':roomsForRecommendation');
+            if (forecastLength > GAUSSIAN_KERNEL.length) {
+                matched = room.forecast.reduce((memo, forecast, index) => {
+                    if (index < window || index > forecastLength - window - 1) {
+                        return memo && true;
+                    }
+                    const smoothedValue = room.forecast
+                        .slice(index - window, index + window + 1)
+                        .reduce((sum, value, kernelIndex) => sum += value.occupancy * GAUSSIAN_KERNEL[kernelIndex], 0);
+                    occupancies.push(Math.round(smoothedValue * 100) / 100);
+                    if (forecast.offset < freeOffset) {
+                        freeCount++;
+                        return memo && smoothedValue < RoomFilling.SEMIFULL;
+                    } else {
+                        fullCount++;
+                        return memo && smoothedValue > RoomFilling.SEMIFULL;
+                    }
+                }, true);
+            }
             if (matched && freeCount >= minFreeCount && fullCount >= minFullCount) {
                 resultList.push(room);
             }
+            const freeValuesString = occupancies.slice(0, freeCount).join(', ');
+            const fullValuesString = occupancies.slice(freeCount, freeCount + fullCount).join(', ');
             // tslint:disable-next-line:max-line-length
-            Logger.log(`Forecast occupancies checked: [${occupancies.join(' ')}] by ${freeCount}:${fullCount}`, RoomService.name);
+            Logger.log(`${room.id} - forecast checked: [${freeValuesString}] to [${fullValuesString}] with ${RoomFilling.SEMIFULL}, ${minFreeCount}, ${minFullCount}`,
+                RoomService.name + ':roomsForRecommendation');
             // reset for the next room
             occupancies = [];
             freeCount = 0;
             fullCount = 0;
         });
 
-        Logger.log(`Got ${resultList.length} rooms to recommend`, RoomService.name);
+        Logger.log(`Got ${resultList.length} rooms to recommend`, RoomService.name + ':roomsForRecommendation');
 
         return resultList;
     }
@@ -224,7 +240,7 @@ export class RoomService {
             // save room
             return room.save();
         } catch (e) {
-            Logger.error(e);
+            Logger.error(e, RoomService.name + ':updateRoom');
         }
     }
 
@@ -242,8 +258,6 @@ export class RoomService {
             let count = 0;
             // last processed timestamp
             const lastTimestamp = room.history.length > 0 ? room.history[room.history.length - 1].timestamp : 0;
-            // tslint:disable-next-line:max-line-length
-            Logger.log(`${room.id} offset: ${offset} time: ${moment.utc(timestamp).format()} next: ${moment.utc(nextTimestamp).format()}`, RoomService.name);
 
             for (const filling of fillings) {
                 // time slot over? -> ATTENTION: the last slot is ignored, because it is processed next time with all values present
@@ -253,7 +267,7 @@ export class RoomService {
                         // average value
                         const occupancy = sum / count;
 
-                        Logger.log(`history ${room.id} time: ${moment.utc(timestamp).format()} occupancy: ${occupancy}`, RoomService.name);
+                        Logger.log(`${room.id} - new history item [${timestamp}, ${occupancy}]`, RoomService.name + ':processRoom');
 
                         // add new history item
                         const newHistory = new this.historyModel({ _id: new Types.ObjectId(), occupancy, timestamp });
@@ -265,7 +279,8 @@ export class RoomService {
                         // ignore saturday and sunday
                         if (weekDay < 6) {
                             const occupancies = await this.calculateForecastOccupancy(forecastMap, occupancy, offset);
-                            Logger.log(`forecast ${room.id} offset: ${offset} occupancy: ${occupancies[0]} -> ${occupancies[1]}`, RoomService.name);
+                            Logger.log(`${room.id} - forecast changed [${offset}, ${occupancies.map(o => Math.round(o * 100) / 100).join(' -> ')}]`,
+                                RoomService.name + ':processRoom');
                         }
                     }
 
@@ -301,7 +316,7 @@ export class RoomService {
             try {
                 await this.triggerIsFreePush(room);
             } catch (e) {
-                Logger.error(e);
+                Logger.error(e, RoomService.name + ':processRoom');
             }
 
             // update history and set average values
@@ -312,7 +327,7 @@ export class RoomService {
 
             return room;
         } catch (e) {
-            Logger.error(e);
+            Logger.error(e, RoomService.name + ':processRoom');
         }
     }
 
@@ -416,7 +431,7 @@ export class RoomService {
 
         // send push only if we have also a non free slot
         if (freeCount >= MIN_FREE_INTERVALS && freeCount <= FREE_INTERVALS_WINDOW) {
-            Logger.log(`${room.id} free count ${freeCount} -> send push`, RoomService.name);
+            Logger.log(`${room.id} - free intervals ${freeCount} -> send push`, RoomService.name + ':triggerIsFreePush');
             await this.pushService.sendIfFreePush(room);
         }
     }
