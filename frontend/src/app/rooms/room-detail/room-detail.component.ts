@@ -6,7 +6,7 @@ import { thresholdPlugin } from '../../../components/threshold.plugin';
 import { Room } from '../room';
 import { Subscription } from 'rxjs';
 import { RoomListComponent, RoomFilling } from '../room-list/room-list.component';
-import { map } from 'rxjs/operators';
+import { map, finalize } from 'rxjs/operators';
 import { formatDate } from '@angular/common';
 import { SUFFIX_MAP } from '../room/room.component';
 
@@ -21,7 +21,8 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
     room: Room;
     roomLabel = '';
     options;
-    private _subscription: Subscription;
+    waitForloading = true;
+    private subscription: Subscription;
 
 
     constructor(
@@ -55,8 +56,12 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         const id: string = this.route.snapshot.paramMap.get('id');
-        this._subscription = this.service.getRoom(id)
+        this.subscription = this.service.getRoom(id)
             .pipe(map(room => RoomListComponent.mapForecastOrHistory(room)))
+            .pipe(finalize(() => {
+                this.subscription.unsubscribe();
+                this.waitForloading = false;
+            }))
             .subscribe(room => {
                 this.room = room;
                 this.roomLabel = `${room.name} (${SUFFIX_MAP[this.room.type]})`;
@@ -64,8 +69,8 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
-        if (this._subscription) {
-            this._subscription.unsubscribe();
+        if (this.subscription) {
+            this.subscription.unsubscribe();
         }
     }
 

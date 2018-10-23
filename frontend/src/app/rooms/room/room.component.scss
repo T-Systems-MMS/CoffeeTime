@@ -1,8 +1,14 @@
+@import '~@angular/material/theming';
+
 .room-card {
   min-height: 346px;
 
   .room-title {
     margin-left: 10px;
+
+    &.outdated {
+      color: map-get($mat-amber, 400);
+    }
   }
 
   .room-icon {
