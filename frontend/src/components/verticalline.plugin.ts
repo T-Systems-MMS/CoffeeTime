@@ -46,7 +46,7 @@ export function verticalLinePlugin(options: VerticalLinePluginOptions): Function
             (chart as ExtendedIChartistBase).svg.elem('line', {
                 x1: xCoord,
                 x2: xCoord,
-                y1: data.chartRect.y1 + options.lineOffset,
+                y1: data.chartRect.y1,
                 y2: data.chartRect.y2 - options.lineOffset,
                 style: 'stroke-width: 2px;'
             }, options.className);
