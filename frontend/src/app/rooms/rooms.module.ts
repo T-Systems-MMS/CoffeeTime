@@ -14,7 +14,6 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatGridListModule } from '@angular/material/grid-list';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { PushService } from './push.service';
 import { ComponentModule } from 'src/components/component.module';
 import { AverageWaitingTimePipe } from './average-waiting-time.pipe';
@@ -41,7 +40,6 @@ import { HammerConfig } from '../hammer.config';
     MatExpansionModule,
     MatGridListModule,
     MatDividerModule,
-    MatProgressBarModule,
     ComponentModule
   ],
   providers: [

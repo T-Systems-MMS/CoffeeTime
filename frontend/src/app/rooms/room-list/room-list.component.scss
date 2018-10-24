@@ -25,18 +25,8 @@ app-room:last-child ::ng-deep {
     }
   }
 
-  &.loading {
-    mat-expansion-panel {
-      &:first-of-type ::ng-deep {
-        .mat-expansion-panel-body {
-          padding-top: 15px;
-        }
-      }
-    }
-  }
-
   .dummy-card {
-    padding: 15px 24px 20px;
+    padding: 20px 24px;
 
     mat-card {
       height: 346px;
