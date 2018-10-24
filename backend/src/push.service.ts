@@ -73,15 +73,15 @@ export class PushService {
                 try {
                     await p.save();
                 } catch (error) {
-                    Logger.error(error);
+                    Logger.error(error, PushService.name);
                 }
             }
 
             // send push
-            Logger.log(`Send if free push for room ${room.name} and ${subscriptions.length} subscriptions.`, PushService.name);
+            Logger.log(`${room.id} - send if free push for ${subscriptions.length} subscriptions.`, PushService.name);
             await this.sendPush(subscriptions, room.id, `${room.name} ist wieder frei.`);
         } catch (error) {
-            Logger.error(error);
+            Logger.error(error, PushService.name);
         }
     }
 
@@ -92,10 +92,10 @@ export class PushService {
             const ids: Types.ObjectId[] = pushes.map(p => Types.ObjectId(p._id));
             const subscriptions: PushData[] = await this.pushModel.find({ subscriptions: { $in: ids } }).exec();
             // send push
-            Logger.log(`Send recommendation push for room ${room.name} and ${subscriptions.length} subscriptions.`, PushService.name);
+            Logger.log(`${room.id} - send recommendation push for ${subscriptions.length} subscriptions.`, PushService.name);
             await this.sendPush(subscriptions, room.id, `${room.name} ist jetzt noch frei. Nutze die Chance.`);
         } catch (error) {
-            Logger.error(error);
+            Logger.error(error, PushService.name);
         }
     }
 
@@ -128,7 +128,7 @@ export class PushService {
                 if (error.statusCode === 410) {
                     await this.delete(s.auth);
                 } else {
-                    Logger.error(error);
+                    Logger.error(error, PushService.name);
                 }
             }
         }
