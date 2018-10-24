@@ -17,17 +17,36 @@ enum RoomFilling {
     FULL = 0.75,
 }
 
+// timings
 const INTERVAL = 60; // aggregation in seconds, should be less or equal to 60
 const MILLISECOND_FACTOR = 1000;
 const HOUR_MILLIS = 60 * 60 * 1000;
 const MILLI_INTERVAL = INTERVAL * MILLISECOND_FACTOR;
-const MAX_FORECAST_VALUES = 4;
 const DAY_MILLIS = 24 * 60 * 60 * 1000;
+// forecast values to store
+const MAX_FORECAST_VALUES = 4;
+// occupancies weight (only for values > 0)
 const WEIGHT_FACTOR = 2;
-const FREE_TIME = 12 * 60; // seconds
-const RECOMMENDATION_FORCAST = FREE_TIME + 7 * 60; // seconds
+// IF FREE SETTINGS
+// min 3 minutes should be the room free
 const MIN_FREE_INTERVALS = 3 * 60 / INTERVAL; // free window
+// 10 minutes lookup window in the past
 const FREE_INTERVALS_WINDOW = 10 * 60 / INTERVAL; // whole window
+// RECOMMENDATION SETTINGS
+// 10 minutes should be the room free (+ 2 minutes for local regression)
+const FREE_TIME = 12 * 60; // seconds
+// 5 minutes should be the room full (+ 2 minutes for local regression)
+const RECOMMENDATION_FORCAST = FREE_TIME + 7 * 60; // seconds
+/**
+ * Kernel is used to smooth forecast occupancies to detect room filling in a robust way.
+ * (Local Regression)
+ *
+ * Is calculated with 1000 samples with sigma = 1.0.
+ * -> calc with gauss blur: https://en.wikipedia.org/wiki/Gaussian_blur
+ *    (calc y value for [-2..2] -> 1000 x values)
+ * -> integrate with simphson rule: https://en.wikipedia.org/wiki/Simpson%27s_rule
+ *    ("sum up" all y values of gaussian normal distribution for each step to have weight for each step)
+ */
 const GAUSSIAN_KERNEL = [0.06136, 0.24477, 0.38774, 0.24477, 0.06136];
 
 @Injectable()
@@ -161,6 +180,7 @@ export class RoomService {
 
         const freeOffset = offset + FREE_TIME * MILLISECOND_FACTOR;
         const window = Math.floor(GAUSSIAN_KERNEL.length / 2);
+        // 1 forecast occupancy per phase could be missing
         const minFreeCount = Math.ceil(FREE_TIME / INTERVAL) - window - 1;
         const minFullCount = Math.ceil((RECOMMENDATION_FORCAST - FREE_TIME) / INTERVAL) - window - 1;
         let freeCount = 0;
@@ -171,15 +191,19 @@ export class RoomService {
             let matched = false;
             const forecastLength = room.forecast.length;
             Logger.log(`${room.id} - got ${forecastLength} forecast values`, RoomService.name + ':roomsForRecommendation');
+            // forecast should be long enough
             if (forecastLength > GAUSSIAN_KERNEL.length) {
                 matched = room.forecast.reduce((memo, forecast, index) => {
+                    // ignore values where the full kernel can't be applied
                     if (index < window || index > forecastLength - window - 1) {
                         return memo && true;
                     }
+                    // apply kernel on every value
                     const smoothedValue = room.forecast
                         .slice(index - window, index + window + 1)
                         .reduce((sum, value, kernelIndex) => sum += value.occupancy * GAUSSIAN_KERNEL[kernelIndex], 0);
                     occupancies.push(Math.round(smoothedValue * 100) / 100);
+                    // check smoothed value apply our rules
                     if (forecast.offset < freeOffset) {
                         freeCount++;
                         return memo && smoothedValue < RoomFilling.SEMIFULL;
@@ -189,6 +213,8 @@ export class RoomService {
                     }
                 }, true);
             }
+            // if rule (10 min free, 5 min full) matched, a minimum of forecasts for free phase and a minimum for full phase is given
+            // the room can be pushed
             if (matched && freeCount >= minFreeCount && fullCount >= minFullCount) {
                 resultList.push(room);
             }
