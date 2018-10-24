@@ -14,18 +14,6 @@ app-room:last-child ::ng-deep {
   }
 }
 
-mat-progress-bar {
-  position: fixed;
-  top: 64px;
-  z-index: 10;
-}
-
-@media (max-width: 599px) {
-  mat-progress-bar {
-    top: 56px;
-  }
-}
-
 .room-list {
   min-height: calc(100% - 24px);
   padding-bottom: 24px;

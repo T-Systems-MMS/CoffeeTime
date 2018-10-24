@@ -16,9 +16,19 @@ mat-toolbar {
   width: 100%;
 }
 
+mat-progress-bar {
+  position: fixed;
+  top: 64px;
+  z-index: 10;
+}
+
 @media (max-width: 599px) {
   .content {
     height: calc(100% - 56px);
+    top: 56px;
+  }
+
+  mat-progress-bar {
     top: 56px;
   }
 }

@@ -1,7 +1,6 @@
-<app-frame label="CoffeeTime">
+<app-frame label="CoffeeTime" [loading]="waitForloading">
   <mat-icon icon>local_cafe</mat-icon>
   <div content class="room-list" [ngClass]="{'loading': waitForloading}">
-    <mat-progress-bar mode="query" *ngIf="waitForloading"></mat-progress-bar>
     <div class="dummy-card" *ngIf="waitForloading && rooms.length === 0 && favoriteRooms.length === 0">
       <mat-card></mat-card>
     </div>
