@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, ElementRef } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 
 @Component({
     selector: 'app-frame',
@@ -6,6 +6,9 @@ import { Component, OnInit, Input, Output, EventEmitter, ElementRef } from '@ang
     styleUrls: ['./frame.component.scss']
 })
 export class FrameComponent implements OnInit {
+
+    @Input()
+    public loading: boolean;
 
     @Input()
     public label: string;

@@ -6,5 +6,6 @@
   <span class="toolbar-label">{{label}}</span>
 </mat-toolbar>
 <div class="content">
-    <ng-content select="[content]"></ng-content>
+  <mat-progress-bar mode="query" *ngIf="loading"></mat-progress-bar>
+  <ng-content select="[content]"></ng-content>
 </div>

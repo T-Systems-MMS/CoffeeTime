@@ -10,7 +10,6 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { StorageServiceModule } from 'ngx-webstorage-service';
 import { ComponentModule } from '../../../components/component.module';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { AverageOccupancyPipe } from '../average-occupancy.pipe';
 import { AverageWaitingTimePipe } from '../average-waiting-time.pipe';
 
@@ -30,7 +29,6 @@ describe('RoomDetailComponent', () => {
                 StorageServiceModule,
                 ComponentModule,
                 MatDividerModule,
-                MatProgressBarModule,
             ],
             declarations: [
                 RoomDetailComponent,
