@@ -2,6 +2,7 @@ import { Injectable, Inject } from '@angular/core';
 import { SwPush, SwUpdate } from '@angular/service-worker';
 import { LOCAL_STORAGE, StorageService } from 'ngx-webstorage-service';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 export const STORAGE_KEY = 'ct_push_auth_token';
 
@@ -30,7 +31,7 @@ export class PushService {
     deleteSubscription(): Promise<any> {
         return this.getAuthToken()
             .then(auth_token => {
-                return this.http.delete('/api/push', {
+                return this.http.delete(environment.baseUrl + '/api/push', {
                     headers: new HttpHeaders({ auth: auth_token })
                 }).toPromise();
             });
@@ -48,7 +49,7 @@ export class PushService {
             .then(sub => {
                 auth_token = sub.toJSON().keys['auth'];
                 // create subscription at our backend
-                return this.http.post('/api/push', {
+                return this.http.post(environment.baseUrl + '/api/push', {
                     endpoint: sub.endpoint,
                     auth: auth_token,
                     p256dh: sub.toJSON().keys['p256dh']
