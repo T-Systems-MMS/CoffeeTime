@@ -10,6 +10,7 @@ export const PushDataSchema = new Schema({
         type: Schema.Types.String,
         unique: true,
         required: true,
+        index: true,
     },
     p256dh: {
         type: Schema.Types.String,
