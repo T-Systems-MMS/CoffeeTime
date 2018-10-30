@@ -46,6 +46,7 @@ export class PushService {
                 if (!existingSubscription) {
                     pushModel.subscriptions.push(subscription);
                     pushModel.save();
+                    Logger.log(`${id} - subscription data [${push.type}, ${push.value}] updated for [${subscriptionAuth}]`, PushService.name);
                 }
             });
     }
@@ -53,6 +54,7 @@ export class PushService {
     save(pushSubscription: PushSubscription): void {
         const newSubscription = new this.pushModel(pushSubscription);
         newSubscription.save();
+        Logger.log(`Subscription [${pushSubscription.auth}] saved`, PushService.name);
     }
 
     async delete(auth: string): Promise<void> {

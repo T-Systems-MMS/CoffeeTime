@@ -21,7 +21,7 @@ import { ComponentModule } from '../components/component.module';
         BrowserModule,
         HttpClientModule,
         BrowserAnimationsModule,
-        ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
+        ServiceWorkerModule.register('sw.js', { enabled: environment.production }),
         RoomsModule,
         AppRoutingModule,   // -> after all other modules with routes
         StorageServiceModule,
