@@ -9,10 +9,11 @@
         "/manifest.json",
         "/index.html",
         "/*.css",
-        "/*.js"
+        "/*.js",
+        "!/sw.js"
       ],
       "urls": [
-          "https://fonts.googleapis.com/**"
+        "https://fonts.googleapis.com/**"
       ]
     }
   }, {
