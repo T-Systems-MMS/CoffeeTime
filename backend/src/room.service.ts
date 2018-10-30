@@ -223,15 +223,27 @@ export class RoomService {
         return resultList;
     }
 
-    room(roomId: string): Promise<RoomData> {
-        return this.roomModel
-            .findOne({ id: roomId }, { _id: 0, __v: 0, forecast: 0 })
-            .populate({
-                path: 'history',
-                select: '-_id',
-                match: { timestamp: { $gt: moment.utc().subtract(3, 'days').valueOf() } },
-            })
+    async room(roomId: string): Promise<RoomData> {
+        const minTimestamp = moment.utc().subtract(3, 'days').valueOf();
+        const rooms = await this.roomModel
+            .aggregate([
+                { $match: { id: roomId } },
+                { $limit: 1 },
+                { $lookup: { from: this.historyModel.collection.name, localField: 'history', foreignField: '_id', as: 'history' } },
+                {
+                    $project: {
+                        id: 1, name: 1, type: 1, status: 1, averageWaitingTime: 1, averageOccupancy: 1,
+                        history: { $filter: { input: '$history', as: 'h', cond: { $gt: ['$$h.timestamp', minTimestamp] } } },
+                    },
+                },
+                { $project: { '_id': 0, 'history._id': 0, 'history.__v': 0 } },
+            ])
             .exec();
+        if (rooms.length > 0) {
+            rooms[0].history.sort((p, n) => p.timestamp - n.timestamp);
+            return rooms[0];
+        }
+        return null;
     }
 
     async updateRoom(location: string, fillings: Filling[]): Promise<RoomData> {
