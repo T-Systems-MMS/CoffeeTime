@@ -71,6 +71,7 @@ export class RoomService {
         const now = moment.utc().valueOf() - startOfDay;
         const to = now + HOUR_MILLIS;
 
+        const startTime = Date.now();
         return this.roomModel
             .aggregate([
                 {
@@ -147,7 +148,11 @@ export class RoomService {
                     },
                 },
             ])
-            .exec();
+            .exec()
+            .then(rooms => {
+                Logger.log(`rooms take: ${Date.now() - startTime}ms`, RoomService.name);
+                return rooms;
+            });
     }
 
     async roomsForRecommendation(): Promise<RoomData[]> {

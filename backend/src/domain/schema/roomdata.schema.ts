@@ -3,6 +3,7 @@ import { ForecastData, ForecastModelName } from './forecast.schema';
 import { HistoryData, HistoryModelName } from './history.schema';
 import { RoomType } from './../roomtype.enum';
 import { RoomState } from './../roomstate.enum';
+import { Logger } from '@nestjs/common';
 
 export const RoomDataSchema = new Schema({
     id: {
@@ -31,6 +32,17 @@ export const RoomDataSchema = new Schema({
         type: Schema.Types.Number,
     },
 }, { id: false });
+
+let startTime;
+RoomDataSchema.pre('aggregate', function() {
+    startTime = Date.now();
+});
+
+RoomDataSchema.post('aggregate', function() {
+    if (startTime) {
+        Logger.log(`${JSON.stringify(this)}: ${Date.now() - startTime}ms`, 'RoomDataSchema');
+    }
+});
 
 export interface RoomData extends Document {
     id: string;
