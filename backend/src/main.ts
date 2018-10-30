@@ -33,6 +33,9 @@ async function bootstrap() {
     const port = process.env.PORT || 3000;
     Logger.log(`Listening on port ${port}`, bootstrap.name);
     app.useGlobalFilters(new NotFoundExceptionFilter());
+    if (process.env.NODE_ENV !== 'production') {
+        app.enableCors({ origin: '*' });
+    }
     await app.listen(port);
 }
 bootstrap();
