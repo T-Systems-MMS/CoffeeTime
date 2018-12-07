@@ -10,6 +10,7 @@ export const RoomDataSchema = new Schema({
         type: Schema.Types.String,
         required: true,
         unique: true,
+        index: true,
     },
     name: {
         type: Schema.Types.String,

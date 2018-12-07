@@ -4,7 +4,10 @@ import * as moment from 'moment';
 export const ForecastSchema = new Schema({
     occupancyValues: [Schema.Types.Number],
     occupancy: Schema.Types.Number,
-    offset: Schema.Types.Number,
+    offset: {
+        type: Schema.Types.Number,
+        index: true,
+    },
 }, { id: false, toJSON: { virtuals: true } });
 
 ForecastSchema.virtual('timestamp').get(function() {

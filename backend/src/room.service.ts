@@ -65,14 +65,14 @@ export class RoomService {
         private pushService: PushService,
     ) { }
 
-    rooms(subscriptionAuth = ''): Promise<RoomData[]> {
+    async rooms(subscriptionAuth = ''): Promise<RoomData[]> {
         const startOfDay = moment.utc().startOf('day').valueOf();
         const from = moment.utc().subtract(2, 'hours').valueOf();
         const now = moment.utc().valueOf() - startOfDay;
         const to = now + HOUR_MILLIS;
 
         const startTime = Date.now();
-        return this.roomModel
+        const rooms = await this.roomModel
             .aggregate([
                 {
                     $lookup: {
@@ -81,7 +81,7 @@ export class RoomService {
                         pipeline: [
                             {
                                 $match: {
-                                    $expr: { $and: [{ $in: ['$_id', '$$forecast_ids'] }, { $gt: ['$offset', now] }, { $lt: ['$offset', to] }] },
+                                    $expr: { $and: [{ $gt: ['$offset', now] }, { $lt: ['$offset', to] }, { $in: ['$_id', '$$forecast_ids'] }] },
                                 },
                             },
                             { $addFields: { timestamp: { $add: ['$offset', startOfDay] } } },
@@ -90,27 +90,15 @@ export class RoomService {
                         as: 'forecast',
                     },
                 },
+                { $lookup: { from: 'historydatas', localField: 'history', foreignField: '_id', as: 'history' } },
                 {
                     $lookup: {
-                        from: this.historyModel.collection.name,
-                        let: { history_ids: '$history' },
-                        pipeline: [
-                            {
-                                $match: { $expr: { $and: [{ $in: ['$_id', '$$history_ids'] }, { $gt: ['$timestamp', from] }] } },
-                            },
-                            { $sort: { timestamp: 1 } },
-                        ],
-                        as: 'history',
-                    },
-                },
-                {
-                    $lookup: {
-                        from: this.pushModel.collection.name,
+                        from: 'pushdatas',
                         let: { room_id: '$id' },
                         pipeline: [
                             {
                                 $lookup: {
-                                    from: this.pushSubscriptionModel.collection.name,
+                                    from: 'pushsubscriptiondatas',
                                     let: { subscription_ids: '$subscriptions' },
                                     pipeline: [{
                                         $match: {
@@ -130,29 +118,36 @@ export class RoomService {
                     },
                 },
                 { $addFields: { push: { $arrayElemAt: ['$pushdata', 0] } } },
-                { $sort: { id: 1 } },
                 {
                     $project: {
-                        '_id': 0,
-                        '__v': 0,
-                        'pushdata': 0,
-                        'push._id': 0,
-                        'push.__v': 0,
-                        'push.roomId': 0,
-                        'forecast._id': 0,
-                        'forecast.__v': 0,
-                        'forecast.offset': 0,
-                        'forecast.occupancyValues': 0,
-                        'history._id': 0,
-                        'history.__v': 0,
+                        id: 1, name: 1, type: 1, status: 1, averageWaitingTime: 1, averageOccupancy: 1, push: 1, forecast: 1,
+                        history: { $filter: { input: '$history', as: 'h', cond: { $gt: ['$$h.timestamp', from] } } },
+                    },
+                },
+                {
+                    $project: {
+                        '_id': 0, 'forecast._id': 0, 'forecast.__v': 0, 'forecast.offset': 0,
+                        'forecast.occupancyValues': 0, 'history._id': 0, 'history.__v': 0,
                     },
                 },
             ])
-            .exec()
-            .then(rooms => {
-                Logger.log(`rooms take: ${Date.now() - startTime}ms`, RoomService.name);
-                return rooms;
-            });
+            .exec();
+        rooms.forEach(room => {
+            room.history.sort((p, n) => p.timestamp - n.timestamp);
+        });
+        rooms.sort((p, n) => {
+            const nameP = p.name ? p.name.toUpperCase() : ''; // ignore upper and lowercase
+            const nameN = n.name ? n.name.toUpperCase() : ''; // ignore upper and lowercase
+            if (nameP < nameN) {
+                return -1;
+            }
+            if (nameP > nameN) {
+                return 1;
+            }
+            return 0;
+           });
+        Logger.log(`rooms fetch take: ${Date.now() - startTime}ms`, RoomService.name);
+        return rooms;
     }
 
     async roomsForRecommendation(): Promise<RoomData[]> {
@@ -239,15 +234,27 @@ export class RoomService {
         return resultList;
     }
 
-    room(roomId: string): Promise<RoomData> {
-        return this.roomModel
-            .findOne({ id: roomId }, { _id: 0, __v: 0, forecast: 0 })
-            .populate({
-                path: 'history',
-                select: '-_id',
-                match: { timestamp: { $gt: moment.utc().subtract(3, 'days').valueOf() } },
-            })
+    async room(roomId: string): Promise<RoomData> {
+        const minTimestamp = moment.utc().subtract(3, 'days').valueOf();
+        const rooms = await this.roomModel
+            .aggregate([
+                { $match: { id: roomId } },
+                { $limit: 1 },
+                { $lookup: { from: this.historyModel.collection.name, localField: 'history', foreignField: '_id', as: 'history' } },
+                {
+                    $project: {
+                        id: 1, name: 1, type: 1, status: 1, averageWaitingTime: 1, averageOccupancy: 1,
+                        history: { $filter: { input: '$history', as: 'h', cond: { $gt: ['$$h.timestamp', minTimestamp] } } },
+                    },
+                },
+                { $project: { '_id': 0, 'history._id': 0, 'history.__v': 0 } },
+            ])
             .exec();
+        if (rooms.length > 0) {
+            rooms[0].history.sort((p, n) => p.timestamp - n.timestamp);
+            return rooms[0];
+        }
+        return null;
     }
 
     async updateRoom(location: string, fillings: Filling[]): Promise<RoomData> {

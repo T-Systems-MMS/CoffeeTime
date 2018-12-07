@@ -1,12 +1,15 @@
 import { Document, Schema } from 'mongoose';
 
 export const PushSubscriptionDataSchema = new Schema({
-    roomId: Schema.Types.String,
+    roomId: {
+        type: Schema.Types.String,
+        index: true,
+    },
     ifFree: {
         type: Schema.Types.Boolean,
         default: false,
     },
-    recommendations:  {
+    recommendations: {
         type: Schema.Types.Boolean,
         default: false,
     },
