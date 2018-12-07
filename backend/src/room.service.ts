@@ -135,6 +135,17 @@ export class RoomService {
         rooms.forEach(room => {
             room.history.sort((p, n) => p.timestamp - n.timestamp);
         });
+        rooms.sort((p, n) => {
+            const nameP = p.name ? p.name.toUpperCase() : ''; // ignore upper and lowercase
+            const nameN = n.name ? n.name.toUpperCase() : ''; // ignore upper and lowercase
+            if (nameP < nameN) {
+                return -1;
+            }
+            if (nameP > nameN) {
+                return 1;
+            }
+            return 0;
+           });
         Logger.log(`rooms fetch take: ${Date.now() - startTime}ms`, RoomService.name);
         return rooms;
     }
