@@ -11,7 +11,7 @@ export class AWSBeService {
     constructor(private readonly roomService: RoomService) {
     }
 
-    private static KNOWN_ROOMS = ['sitzecke', 'R5-119'];
+    private static KNOWN_ROOMS = ['sitzecke', 'R5-119', 'R7-A209'];
     private static BE_URL = 'https://env-data-api.mms-project-aws4iot.aws.t-systems-mms.com/final/kitchenDataByRoom?room=';
 
     update(): void {
